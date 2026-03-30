@@ -192,10 +192,29 @@ func main() {
 				} else if villageResp, ok := recvEnv.Payload.(*pb.Envelope_Village); ok {
 					if joinResp, ok2 := villageResp.Village.Action.(*pb.VillageAction_JoinResp); ok2 {
 						log.Printf("[Client] 🟢 Decrypted VillageJoinResp: Success=%v, Msg=%s\n", joinResp.JoinResp.Success, joinResp.JoinResp.Message)
-						rtt := time.Now().UnixMilli() - now
-						log.Printf("==== 🎉 SUCCESS (Village Joined): RTT %d ms ====\n", rtt)
-						return
+						
+						// 加入村莊後，模擬跑動
+						moveEnv := &pb.Envelope{
+							Header: &pb.Header{
+								Seq:       4,
+								SessionId: sessionID,
+							},
+							Payload: &pb.Envelope_MoveReq{
+								MoveReq: &pb.ClientMoveReq{
+									X: 121.5, // 台北附近，會被分流到 Keelung Hive
+									Y: 25.0,
+								},
+							},
+						}
+						sendEncryptedPayload(conn, moveEnv, secret)
 					}
+				} else if aoiBroadcast, ok := recvEnv.Payload.(*pb.Envelope_AoiBroadcast); ok {
+					for _, entity := range aoiBroadcast.AoiBroadcast.Entities {
+						log.Printf("[Client] 🟢 Decrypted AOIBroadcast: Player[%s] moved to X:%.2f, Y:%.2f\n", entity.Username, entity.X, entity.Y)
+					}
+					rtt := time.Now().UnixMilli() - now
+					log.Printf("==== 🎉 SUCCESS (AOI Broadcast Received): RTT %d ms ====\n", rtt)
+					return
 				}
 			}
 		}

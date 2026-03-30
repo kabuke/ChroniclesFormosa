@@ -5,10 +5,12 @@ import (
 	"log"
 
 	"github.com/kabuke/ChroniclesFormosa/config"
+	"github.com/kabuke/ChroniclesFormosa/server/aoi"
 	"github.com/kabuke/ChroniclesFormosa/server/database"
 	"github.com/kabuke/ChroniclesFormosa/server/logic/village"
 	"github.com/kabuke/ChroniclesFormosa/server/model"
 	"github.com/kabuke/ChroniclesFormosa/server/network"
+	"github.com/kabuke/ChroniclesFormosa/server/session"
 	"github.com/xtaci/kcp-go/v5"
 )
 
@@ -39,6 +41,9 @@ func main() {
 
 	// 啟動背景世界引擎 (村莊資源產出)
 	go village.StartEconomyEngine()
+
+	// 註冊 AOI 中斷清理機制 (解開循環相依)
+	session.OnSessionExpired = aoi.GetManager().RemovePlayer
 
 	// 3. 建立 KCP Listener
 	addr := fmt.Sprintf("%s:%d", config.AppConfig.ServerAddress, config.AppConfig.ServerPort)

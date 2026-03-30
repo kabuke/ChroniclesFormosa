@@ -172,6 +172,19 @@ func (s *UserSession) ClearOutbox() {
 
 // =========================================================================
 
+type getReq struct {
+	id   string
+	resp chan *UserSession
+}
+
+type getByUserReq struct {
+	username string
+	resp     chan *UserSession
+}
+
+// OnSessionExpired 提供外部模塊註冊，當 Session 超時斷開時觸發
+var OnSessionExpired func(username string)
+
 type SessionManager struct {
 	sessions map[string]*UserSession
 
@@ -182,16 +195,7 @@ type SessionManager struct {
 	getByUserCh   chan getByUserReq
 	forwardCh     chan *pb.Envelope
 	allSessionsCh chan chan []*UserSession
-}
-
-type getReq struct {
-	id   string
-	resp chan *UserSession
-}
-
-type getByUserReq struct {
-	username string
-	resp     chan *UserSession
+	saveInterval  time.Duration
 }
 
 var globalManager *SessionManager
@@ -298,11 +302,16 @@ func (m *SessionManager) runLoop() {
 
 		case <-gcTicker.C:
 			// gc
-			for id, s := range m.sessions {
-				s.mu.RLock()
-				lastActive := s.LastActive
-				s.mu.RUnlock()
+			for id, sess := range m.sessions {
+				sess.mu.RLock()
+				lastActive := sess.LastActive
+				sess.mu.RUnlock()
 				if time.Since(lastActive) > 60*time.Minute {
+					// 超過 60 分鐘沒傳送過封包，我們視為真實下線 (不是短暫斷線)
+					log.Printf("[SessionGC] Session expired (idle > 60m): %s (User: %s)", id, sess.Username)
+					if sess.Username != "" && OnSessionExpired != nil {
+						OnSessionExpired(sess.Username)
+					}
 					delete(m.sessions, id)
 				}
 			}

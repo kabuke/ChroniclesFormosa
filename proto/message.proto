@@ -104,6 +104,8 @@ message Envelope {
         // AOI
         AOIUpdate aoi_update = 60;
         MapSync map_sync = 61;
+        ClientMoveReq move_req = 70;
+        AOIBroadcast aoi_broadcast = 71;
     }
 }
 
@@ -299,4 +301,22 @@ message AOIUpdate {
 message MapSync {
     int32 chunk_id = 1;
     bytes chunk_data = 2;
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：即時動態位置
+// ═══════════════════════════════════════
+
+message ClientMoveReq {
+    float x = 1;
+    float y = 2;
+}
+
+message AOIBroadcast {
+    message EntityPos {
+        string username = 1;
+        float x = 2;
+        float y = 3;
+    }
+    repeated EntityPos entities = 1;
 }

@@ -89,11 +89,11 @@
 - [x] 3.6.4 `server/repo/map_repo.go`：記憶體 + 快照實作
 
 ### 3.7 AOI 層
-- [ ] 3.7.1 `server/aoi/manager.go`：AOI Manager 基礎框架
-- [ ] 3.7.2 `server/aoi/hive.go`：五大節點定義（基隆/台中/台南/台東/澎湖）
+- [x] 3.7.1 `server/aoi/manager.go`：AOI Manager 基礎框架
+- [x] 3.7.2 `server/aoi/hive.go`：五大節點定義（基隆/台中/台南/台東/澎湖）
 
 ### 3.8 伺服器進入點
-- [ ] 3.8.1 `server/main.go`：LoadConfig → InitDB → KCP ListenWithOptions → AcceptKCP Loop → go HandleConnection
+- [x] 3.8.1 `server/main.go`：LoadConfig → InitDB → KCP ListenWithOptions → AcceptKCP Loop → go HandleConnection
 
 ---
 

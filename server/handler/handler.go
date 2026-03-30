@@ -23,6 +23,9 @@ func HandleEnvelope(env *pb.Envelope, s *session.UserSession) {
 	case *pb.Envelope_Village:
 		HandleVillageAction(payload.Village, s)
 
+	case *pb.Envelope_MoveReq:
+		HandleAoiUpdate(payload.MoveReq, s)
+
 	default:
 		log.Println("Received unhandled Envelope Action:", env.Payload)
 	}
