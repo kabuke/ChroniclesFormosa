@@ -100,16 +100,16 @@
 ## 四、客戶端
 
 ### 4.1 網路層（借鑑 DiceTower `client/network/client.go`）
-- [ ] 4.1.1 `client/network/client.go`：KCP 連線 + 狀態機
-  - [ ] Connect / doConnect
-  - [ ] handshake()：ECDH 密鑰交換
-  - [ ] resume()：斷線重連
-  - [ ] listen()：監聽迴圈（解密→去重→Ack→Callback dispatch）
-  - [ ] heartbeat()：每 1 秒 Ping
-  - [ ] reconnect()：Backoff 重試
-- [ ] 4.1.2 SendEnvelope：waitingQueue + 滑動窗口 + sendRaw 加密發送
-- [ ] 4.1.3 handleAck / handleEcho / migratePendingQueue
-- [ ] 4.1.4 Callback 註冊機制（RegisterLoginResponseCallback 等）
+- [x] 4.1.1 `client/network/client.go`：KCP 連線 + 狀態機
+  - [x] Connect / doConnect
+  - [x] handshake()：ECDH 密鑰交換
+  - [x] resume()：斷線重連
+  - [x] listen()：監聽迴圈（解密→去重→Ack→Callback dispatch）
+  - [x] heartbeat()：每 1 秒 Ping
+  - [x] reconnect()：Backoff 重試
+- [x] 4.1.2 SendEnvelope：waitingQueue + 滑動窗口 + sendRaw 加密發送
+- [x] 4.1.3 handleAck / handleEcho / migratePendingQueue
+- [x] 4.1.4 Callback 註冊機制（RegisterLoginResponseCallback 等）
 
 ### 4.2 場景管理
 - [ ] 4.2.1 `client/scene/scene_manager.go`：Scene 介面 + SceneManager
