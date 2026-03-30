@@ -6,6 +6,7 @@ import (
 
 	"github.com/kabuke/ChroniclesFormosa/config"
 	"github.com/kabuke/ChroniclesFormosa/server/database"
+	"github.com/kabuke/ChroniclesFormosa/server/logic/village"
 	"github.com/kabuke/ChroniclesFormosa/server/model"
 	"github.com/kabuke/ChroniclesFormosa/server/network"
 	"github.com/xtaci/kcp-go/v5"
@@ -35,6 +36,9 @@ func main() {
 		})
 		log.Println("[Database] 🛖 Seeded initial 3 villages (打狗, 諸羅, 竹塹).")
 	}
+
+	// 啟動背景世界引擎 (村莊資源產出)
+	go village.StartEconomyEngine()
 
 	// 3. 建立 KCP Listener
 	addr := fmt.Sprintf("%s:%d", config.AppConfig.ServerAddress, config.AppConfig.ServerPort)

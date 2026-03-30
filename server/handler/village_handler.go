@@ -4,7 +4,7 @@ import (
 	"log"
 
 	pb "github.com/kabuke/ChroniclesFormosa/resource"
-	"github.com/kabuke/ChroniclesFormosa/server/repo"
+	village_logic "github.com/kabuke/ChroniclesFormosa/server/logic/village"
 	"github.com/kabuke/ChroniclesFormosa/server/session"
 )
 
@@ -24,17 +24,11 @@ func HandleVillageAction(action *pb.VillageAction, s *session.UserSession) {
 
 // handleVillageInfoReq: 查詢村莊詳細資訊 (包含動態人口統計)
 func handleVillageInfoReq(req *pb.VillageInfoReq, s *session.UserSession) {
-	villageRepo := repo.NewVillageRepo()
-	village, err := villageRepo.FindByID(req.VillageId)
-
+	village, population, err := village_logic.GetVillageInfo(req.VillageId)
 	if err != nil {
 		log.Printf("[VillageHandler] InfoReq failed: %v", err)
 		return
 	}
-
-	playerRepo := repo.NewPlayerRepo()
-	// 即時從 DB 統計有多少名玩家村莊歸屬於此地
-	population, _ := playerRepo.CountByVillageID(req.VillageId)
 
 	resp := &pb.Envelope{
 		Payload: &pb.Envelope_Village{
@@ -44,9 +38,9 @@ func handleVillageInfoReq(req *pb.VillageInfoReq, s *session.UserSession) {
 						VillageId:     village.ID,
 						Name:          village.Name,
 						Level:         village.Level,
-						Population:    int32(population),
-						MaxPopulation: 100, // Phase 1 預設最多 100 人
-						Headman:       "",  // Phase 1 尚未實作頭目選舉
+						Population:    population, // int32
+						MaxPopulation: 100,        // Phase 1 預設最多 100 人
+						Headman:       "",         // Phase 1 尚未實作頭目選舉
 					},
 				},
 			},
@@ -79,43 +73,10 @@ func handleVillageJoinReq(req *pb.VillageJoinReq, s *session.UserSession) {
 		}
 	}
 
-	// 1. 防呆：必須擁有合法的 Username 身分（在 auth.go 內賦予）
-	if s.Username == "" {
-		sendResp(false, "您必須先登入帳號才能執行加入莊頭的操作。")
-		return
-	}
-
-	// 2. 確保此村莊真實存在
-	vRepo := repo.NewVillageRepo()
-	_, err := vRepo.FindByID(req.VillageId)
+	// 委派至 Logic 層：處理 DB 驗證與更新
+	err := village_logic.JoinVillage(s.Username, req.VillageId)
 	if err != nil {
-		sendResp(false, "查無此莊頭，請確認莊頭編號。")
-		return
-	}
-
-	// 3. 取得目前登入者的 DB 實體
-	pRepo := repo.NewPlayerRepo()
-	player, err := pRepo.FindByUsername(s.Username)
-	if err != nil {
-		sendResp(false, "無法取得您的角色資料庫紀錄。")
-		return
-	}
-
-	// 4. 重複屬地判斷與防呆
-	if player.VillageID == req.VillageId {
-		sendResp(true, "您早已經是本莊頭的成員囉！")
-		return
-	}
-	if player.VillageID != 0 {
-		sendResp(false, "您已經是其他莊頭的成員了，請先尋求退出原莊頭。")
-		return
-	}
-
-	// 5. 寫入變更
-	player.VillageID = req.VillageId
-	if err := pRepo.Update(player); err != nil {
-		log.Printf("[VillageHandler] DB Update Error: %v", err)
-		sendResp(false, "加入莊頭失敗，系統儲存發生錯誤。")
+		sendResp(false, err.Error())
 		return
 	}
 

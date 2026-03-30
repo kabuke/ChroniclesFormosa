@@ -14,6 +14,8 @@ type PlayerRepo interface {
 type VillageRepo interface {
 	Create(village *model.Village) error
 	FindByID(id int64) (*model.Village, error)
+	FindAll() ([]*model.Village, error)
+	Update(village *model.Village) error
 }
 
 // SessionRepo 定義網路中斷接續狀態的持久化介面

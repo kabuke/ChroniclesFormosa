@@ -28,3 +28,13 @@ func (r *villageRepoImpl) FindByID(id int64) (*model.Village, error) {
 	}
 	return &v, err
 }
+
+func (r *villageRepoImpl) FindAll() ([]*model.Village, error) {
+	var villages []*model.Village
+	err := database.GetDB().Find(&villages).Error
+	return villages, err
+}
+
+func (r *villageRepoImpl) Update(village *model.Village) error {
+	return database.GetDB().Save(village).Error
+}

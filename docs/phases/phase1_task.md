@@ -74,8 +74,8 @@
 - [x] 3.3.3 `server/handler/village_handler.go`：查詢/加入庄頭（VillageAction 分派）
 
 ### 3.4 Logic 層
-- [ ] 3.4.1 `server/logic/village/village.go`：庄頭基礎邏輯（建立、加入、查詢）
-- [ ] 3.4.2 `server/logic/village/economy.go`：資源產出基礎計算
+- [x] 3.4.1 `server/logic/village/village.go`：庄頭基礎邏輯（建立、加入、查詢）
+- [x] 3.4.2 `server/logic/village/economy.go`：資源產出基礎計算
 
 ### 3.5 Model 層
 - [x] 3.5.1 `server/model/player.go`：玩家領域模型
