@@ -112,9 +112,9 @@
 - [x] 4.1.4 Callback 註冊機制（RegisterLoginResponseCallback 等）
 
 ### 4.2 場景管理
-- [ ] 4.2.1 `client/scene/scene_manager.go`：Scene 介面 + SceneManager
-- [ ] 4.2.2 `client/scene/login_scene.go`：登入畫面（帳號/密碼輸入）
-- [ ] 4.2.3 `client/scene/map_scene.go`：大地圖場景（Chunk 載入）
+- [x] 4.2.1 `client/scene/scene_manager.go`：Scene 介面 + SceneManager
+- [x] 4.2.2 `client/scene/login_scene.go`：登入畫面（帳號/密碼輸入）
+- [x] 4.2.3 `client/scene/map_scene.go`：大地圖場景（Chunk 載入）
 
 ### 4.3 大地圖渲染
 - [ ] 4.3.1 Chunk 資料結構定義（5×5 = 25 Chunks）
@@ -136,8 +136,8 @@
 - [ ] 4.5.2 `client/i18n/zh_TW.json`：繁體中文翻譯（登入、系統訊息）
 
 ### 4.6 客戶端進入點
-- [ ] 4.6.1 `client/main.go`：Ebiten Game Loop 啟動
-- [ ] 4.6.2 `client/config/client_config.go`：伺服器位址、視窗大小等
+- [x] 4.6.1 `client/main.go`：Ebiten Game Loop 啟動
+- [x] 4.6.2 `client/config/client_config.go`：伺服器位址、視窗大小等
 
 ---
 
