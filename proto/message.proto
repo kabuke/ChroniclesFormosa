@@ -1,0 +1,302 @@
+syntax = "proto3";
+package formosa;
+option go_package = "./;resource";
+
+// ═══════════════════════════════════════
+// 第一層：Wire Format
+// ═══════════════════════════════════════
+
+enum SystemCodes {
+    EncryptedData = 0;
+    KeyExchange = 5;
+    ResumeSession = 6;
+    Ping = 7;
+    Pong = 8;
+}
+
+message Packet {
+    oneof payload {
+        KeyExchangeRequest key_exchange_req = 1;
+        KeyExchangeResponse key_exchange_resp = 2;
+        ResumeSessionRequest resume_req = 3;
+        ResumeSessionResponse resume_resp = 5;
+        TransferEncrypted encrypted = 4;
+    }
+}
+
+message TransferEncrypted {
+    SystemCodes codes = 1;
+    bytes data = 2;     // AES-GCM 加密後的 Envelope bytes
+    bytes nonce = 3;    // GCM Nonce (12 bytes)
+    bytes tag = 4;      // 驗證標籤（可選）
+}
+
+// ═══════════════════════════════════════
+// 握手與重連
+// ═══════════════════════════════════════
+
+message KeyExchangeRequest {
+    bytes public_key = 1;   // Curve25519 臨時公鑰
+}
+
+message KeyExchangeResponse {
+    bytes public_key = 1;
+    string session_id = 2;
+    uint64 max_client_seq = 3;
+}
+
+message ResumeSessionRequest {
+    string session_id = 1;
+    uint64 last_ack = 2;
+    uint64 client_next_seq = 3;
+}
+
+message ResumeSessionResponse {
+    uint64 max_client_seq = 1;
+}
+
+// ═══════════════════════════════════════
+// 第二層：應用層 Header（可靠性核心）
+// ═══════════════════════════════════════
+
+message Header {
+    uint64 seq = 1;                 // 發送序號
+    uint64 ack = 2;                 // 確認收到的最大序號
+    string session_id = 3;
+    string origin_session_id = 4;   // 廣播回音用
+    uint64 origin_seq = 5;
+    uint32 win_size = 6;            // 接收端窗口大小
+}
+
+message Heartbeat {
+    int64 timestamp = 1;
+}
+
+// ═══════════════════════════════════════
+// 第三層：業務 Envelope（OneOf 載荷）
+// ═══════════════════════════════════════
+
+message Envelope {
+    Header header = 1;
+    oneof payload {
+        // 認證
+        Login login = 2;
+        LoginResponse login_response = 3;
+        Register register = 4;
+
+        // 心跳
+        Heartbeat ping = 10;
+        Heartbeat pong = 11;
+
+        // 聊天
+        ChatMessage chat = 20;
+        IntelHint intel_hint = 21;
+
+        // 庄頭
+        VillageAction village = 30;
+
+        // 天災
+        DisasterAction disaster = 40;
+
+        // 戰鬥
+        BattleAction battle = 50;
+
+        // AOI
+        AOIUpdate aoi_update = 60;
+        MapSync map_sync = 61;
+    }
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：認證與玩家
+// ═══════════════════════════════════════
+
+message Login {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message Register {
+    string username = 1;
+    string password = 2;
+    string confirm_password = 3;
+    string nickname = 4;
+    int32  faction_id = 5;   // 選擇陣營：1=清軍, 2=義軍, 3=原民
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：社群與情報
+// ═══════════════════════════════════════
+
+enum ChatChannelType {
+    CHANNEL_VILLAGE = 0;
+    CHANNEL_REGION = 1;
+    CHANNEL_FACTION = 2;
+    CHANNEL_GLOBAL = 3;
+    CHANNEL_PRIVATE = 4;
+}
+
+message ChatMessage {
+    string sender = 1;
+    string content = 2;
+    string receiver = 3;
+    int64 timestamp = 4;
+    ChatChannelType channel = 5;
+}
+
+message IntelHint {
+    string hint_text = 1;
+    string direction = 2;
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：庄頭系統
+// ═══════════════════════════════════════
+
+message VillageAction {
+    oneof action {
+        VillageInfoReq info_req = 1;
+        VillageInfoResp info_resp = 2;
+        VillageJoinReq join_req = 3;
+        VillageJoinResp join_resp = 4;
+        VillageElectReq elect_req = 5;
+        VillageElectResp elect_resp = 6;
+    }
+}
+
+message VillageInfoReq {
+    int64 village_id = 1;
+}
+
+message VillageInfoResp {
+    int64 village_id = 1;
+    string name = 2;
+    int32 level = 3;
+    int32 population = 4;
+    int32 max_population = 5;
+    string headman = 6;
+}
+
+message VillageJoinReq {
+    int64 village_id = 1;
+}
+
+message VillageJoinResp {
+    bool success = 1;
+    string message = 2;
+}
+
+message VillageElectReq {
+    int64 village_id = 1;
+    string candidate_name = 2;
+}
+
+message VillageElectResp {
+    bool success = 1;
+    string message = 2;
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：天災系統
+// ═══════════════════════════════════════
+
+message DisasterAction {
+    oneof action {
+        EarthquakeNotify earthquake = 1;
+        TyphoonNotify typhoon = 2;
+        DisasterWarning warning = 3;
+        ReliefGameStart relief_start = 4;
+        ReliefDonateReq relief_donate = 5;
+        ReliefRouteSubmit relief_route = 6;
+        ReliefResult relief_result = 7;
+    }
+}
+
+message EarthquakeNotify {
+    int64 epicenter_tile_id = 1;
+    float magnitude = 2;
+    repeated int64 affected_villages = 3;
+}
+
+message TyphoonNotify {
+    repeated int64 path_tiles = 1;
+    float intensity = 2;
+}
+
+message DisasterWarning {
+    string message = 1;
+    int32 countdown_seconds = 2;
+}
+
+message ReliefGameStart {
+    int64 disaster_id = 1;
+}
+
+message ReliefDonateReq {
+    int32 resource_amount = 1;
+}
+
+message ReliefRouteSubmit {
+    repeated int64 waypoints = 1; // 牛車路線
+}
+
+message ReliefResult {
+    bool success = 1;
+    int32 score = 2;
+    int32 reward = 3;
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：戰鬥系統
+// ═══════════════════════════════════════
+
+message BattleAction {
+    oneof action {
+        BattleStartNotify start = 1;
+        BattleDeployReq deploy = 2;
+        BattleResultNotify result = 3;
+    }
+}
+
+message BattleStartNotify {
+    int64 battle_id = 1;
+    int64 location_tile_id = 2;
+}
+
+message BattleDeployReq {
+    int64 battle_id = 1;
+    int32 troop_count = 2;
+    int32 general_id = 3;
+}
+
+message BattleResultNotify {
+    int64 battle_id = 1;
+    string winner_faction = 2;
+    int32 attacker_loss = 3;
+    int32 defender_loss = 4;
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：AOI 與地圖
+// ═══════════════════════════════════════
+
+message AOIUpdate {
+    message EntityData {
+        int64 entity_id = 1;
+        int32 entity_type = 2; // 0=Player, 1=NPC, 2=Village, 3=Army
+        int64 tile_id = 3;
+        string name = 4;
+    }
+    repeated EntityData enters = 1;   // 進入視野
+    repeated int64 leaves = 2;        // 離開視野
+}
+
+message MapSync {
+    int32 chunk_id = 1;
+    bytes chunk_data = 2;
+}
