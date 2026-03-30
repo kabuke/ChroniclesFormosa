@@ -1,0 +1,7 @@
+2026/03/31 01:23:01 [Client] Connected to 127.0.0.1:8999
+2026/03/31 01:23:01 [Client] 🟢 Sent KeyExchangeReq (My PublicKey)
+2026/03/31 01:23:01 [Client] 🟢 Handshake matched. SessionID=iwLwP7Cy.1774891381684616000
+2026/03/31 01:23:01 [Client] 🟢 Derived Shared Secret AESGCM Key. (Client Prefix: iwLwP7Cy)
+2026/03/31 01:23:01 [Client] 🟢 Sent Encrypted ChatMessage Payload
+2026/03/31 01:23:06 Read encrypted error:timeout
+exit status 1

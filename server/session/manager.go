@@ -6,6 +6,8 @@ import (
 	"time"
 
 	pb "github.com/kabuke/ChroniclesFormosa/resource"
+	"github.com/kabuke/ChroniclesFormosa/server/model"
+	"github.com/kabuke/ChroniclesFormosa/server/repo"
 	"github.com/xtaci/kcp-go/v5"
 	"google.golang.org/protobuf/proto"
 )
@@ -33,7 +35,8 @@ type UserSession struct {
 	TriggerFlush func()
 	SendEnvelope func(*pb.Envelope)
 
-	mu sync.RWMutex
+	IsDirty bool // 標記是否被更新過尚未存檔
+	mu      sync.RWMutex
 }
 
 func (s *UserSession) UpdateMaxClientSeq(seq uint64) {
@@ -41,6 +44,7 @@ func (s *UserSession) UpdateMaxClientSeq(seq uint64) {
 	defer s.mu.Unlock()
 	if seq > s.MaxClientSeq {
 		s.MaxClientSeq = seq
+		s.IsDirty = true
 	}
 }
 
@@ -62,6 +66,7 @@ func (s *UserSession) SetUsername(name string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.Username = name
+	s.IsDirty = true
 }
 
 // SetConn 設定或替換底層 UDP Session
@@ -90,6 +95,7 @@ func (s *UserSession) QueueMessage(originEnv *pb.Envelope) {
 	env.Header.Seq = s.NextSeq
 	env.Header.SessionId = s.SessionID
 	s.NextSeq++
+	s.IsDirty = true
 
 	// 儲存於歷史紀錄（用於 Session Resume 回放），保留最近 150 筆
 	s.History = append(s.History, env)
@@ -108,6 +114,7 @@ func (s *UserSession) Acknowledge(ack uint64) {
 
 	if ack > s.LastAck {
 		s.LastAck = ack
+		s.IsDirty = true
 	}
 
 	newOutbox := make([]*pb.Envelope, 0, len(s.Outbox))
@@ -165,11 +172,26 @@ func (s *UserSession) ClearOutbox() {
 
 // =========================================================================
 
-// SessionManager 負責管理全伺服器的玩家連線 Session
 type SessionManager struct {
-	sessions     map[string]*UserSession
-	ForwardQueue []*pb.Envelope
-	mu           sync.RWMutex
+	sessions map[string]*UserSession
+
+	// Actor 模型的 Channels
+	registerCh    chan *UserSession
+	unregisterCh  chan string
+	getCh         chan getReq
+	getByUserCh   chan getByUserReq
+	forwardCh     chan *pb.Envelope
+	allSessionsCh chan chan []*UserSession
+}
+
+type getReq struct {
+	id   string
+	resp chan *UserSession
+}
+
+type getByUserReq struct {
+	username string
+	resp     chan *UserSession
 }
 
 var globalManager *SessionManager
@@ -178,22 +200,23 @@ var once sync.Once
 func GetManager() *SessionManager {
 	once.Do(func() {
 		globalManager = &SessionManager{
-			sessions:     make(map[string]*UserSession),
-			ForwardQueue: make([]*pb.Envelope, 0),
+			sessions:      make(map[string]*UserSession),
+			registerCh:    make(chan *UserSession, 100),
+			unregisterCh:  make(chan string, 100),
+			getCh:         make(chan getReq, 100),
+			getByUserCh:   make(chan getByUserReq, 100),
+			forwardCh:     make(chan *pb.Envelope, 5000), // 高吞吐量緩衝
+			allSessionsCh: make(chan chan []*UserSession, 10),
 		}
 		globalManager.LoadSessions()
-		go globalManager.gc()
-		go globalManager.saveLoop()
-		go globalManager.forwardLoop() // 20 TPS 的轉發迴圈
+		go globalManager.runLoop()  // 啟動 Actor 核心迴圈
+		go globalManager.saveLoop() // 定期觸發存檔
 	})
 	return globalManager
 }
 
 // CreateSession 握手後建立新的 Session 實體並給予臨時 Secret
 func (m *SessionManager) CreateSession(id string, secret []byte) *UserSession {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
 	s := &UserSession{
 		SessionID:        id,
 		SharedSecret:     secret,
@@ -203,15 +226,15 @@ func (m *SessionManager) CreateSession(id string, secret []byte) *UserSession {
 		Outbox:           make([]*pb.Envelope, 0),
 		History:          make([]*pb.Envelope, 0),
 	}
-	m.sessions[id] = s
+	m.registerCh <- s
 	return s
 }
 
 func (m *SessionManager) GetSession(id string) *UserSession {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	s, ok := m.sessions[id]
-	if ok {
+	resp := make(chan *UserSession, 1)
+	m.getCh <- getReq{id: id, resp: resp}
+	s := <-resp
+	if s != nil {
 		s.mu.Lock()
 		s.LastActive = time.Now()
 		s.mu.Unlock()
@@ -220,110 +243,124 @@ func (m *SessionManager) GetSession(id string) *UserSession {
 }
 
 func (m *SessionManager) GetSessionByUsername(username string) *UserSession {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	var target *UserSession
-	for _, s := range m.sessions {
-		s.mu.RLock()
-		name := s.Username
-		lastActive := s.LastActive
-		s.mu.RUnlock()
-
-		if name == username { // 支援多裝置登入時，取最新活躍的一個
-			if target == nil || lastActive.After(target.LastActive) {
-				target = s
-			}
-		}
-	}
-	return target
+	resp := make(chan *UserSession, 1)
+	m.getByUserCh <- getByUserReq{username: username, resp: resp}
+	return <-resp
 }
 
-// AddToForwardQueue 新增到轉發隊列，供廣播與聊天使用
+// AddToForwardQueue 新增到轉發隊列，供廣播與聊天使用 (現在直接寫入 Channel)
 func (m *SessionManager) AddToForwardQueue(env *pb.Envelope) {
-	m.mu.Lock()
-	m.ForwardQueue = append(m.ForwardQueue, env)
-	m.mu.Unlock()
+	m.forwardCh <- env
 }
 
-// forwardLoop (20 TPS) 從隊列中批量消費業務訊息路由
-func (m *SessionManager) forwardLoop() {
-	ticker := time.NewTicker(50 * time.Millisecond)
-	defer ticker.Stop()
-	for range ticker.C {
-		m.processForwardQueue()
-	}
-}
+// runLoop (Actor 核心迴圈) 接管所有 map 的讀寫，保證無鎖安全 (Lock-free)
+func (m *SessionManager) runLoop() {
+	gcTicker := time.NewTicker(10 * time.Minute)
+	defer gcTicker.Stop()
 
-func (m *SessionManager) processForwardQueue() {
-	m.mu.Lock()
-	if len(m.ForwardQueue) == 0 {
-		m.mu.Unlock()
-		return
-	}
+	for {
+		select {
+		case s := <-m.registerCh:
+			m.sessions[s.SessionID] = s
 
-	queue := m.ForwardQueue
-	m.ForwardQueue = make([]*pb.Envelope, 0)
-	m.mu.Unlock()
+		case id := <-m.unregisterCh:
+			delete(m.sessions, id)
 
-	// 複製當前的 sessions 進行遍歷路由
-	m.mu.RLock()
-	sessions := make([]*UserSession, 0, len(m.sessions))
-	for _, s := range m.sessions {
-		sessions = append(sessions, s)
-	}
-	m.mu.RUnlock()
+		case req := <-m.getCh:
+			req.resp <- m.sessions[req.id]
 
-	for _, env := range queue {
-		var targets []*UserSession
+		case req := <-m.getByUserCh:
+			var target *UserSession
+			for _, s := range m.sessions {
+				s.mu.RLock()
+				name := s.Username
+				lastActive := s.LastActive
+				s.mu.RUnlock()
 
-		if chatEnv, ok := env.Payload.(*pb.Envelope_Chat); ok && chatEnv.Chat.Receiver != "" {
-			target := chatEnv.Chat.Receiver
-
-			if target[0] == '#' {
-				// TODO: 頻道聊天 (如 #village_10) 等完整系統好再實作，先轉廣播
-				targets = sessions
-			} else {
-				// 私聊，將 Target 導向該用戶
-				if s := m.GetSessionByUsername(target); s != nil {
-					targets = append(targets, s)
-					// Echo 發送給發送者本人以達到客戶端顯示的同步感
-					if env.Header != nil && env.Header.SessionId != s.SessionID {
-						if senderSess := m.GetSession(env.Header.SessionId); senderSess != nil {
-							targets = append(targets, senderSess)
-						}
+				if name == req.username {
+					if target == nil || lastActive.After(target.LastActive) {
+						target = s
 					}
 				}
 			}
-		} else {
-			// 全廣播模式
-			targets = sessions
-		}
+			req.resp <- target
 
-		for _, s := range targets {
-			s.QueueMessage(env)
-			if s.TriggerFlush != nil {
-				go s.TriggerFlush()
+		case req := <-m.allSessionsCh:
+			// Snapshot copy for persistence
+			sessionsCopy := make([]*UserSession, 0, len(m.sessions))
+			for _, s := range m.sessions {
+				sessionsCopy = append(sessionsCopy, s)
+			}
+			req <- sessionsCopy
+
+		case env := <-m.forwardCh:
+			m.handleForward(env)
+
+		case <-gcTicker.C:
+			// gc
+			for id, s := range m.sessions {
+				s.mu.RLock()
+				lastActive := s.LastActive
+				s.mu.RUnlock()
+				if time.Since(lastActive) > 60*time.Minute {
+					delete(m.sessions, id)
+				}
 			}
 		}
 	}
 }
 
-// gc 回收超過 60 分鐘無活動之 Session
-func (m *SessionManager) gc() {
-	ticker := time.NewTicker(10 * time.Minute)
-	defer ticker.Stop()
-	for range ticker.C {
-		m.mu.Lock()
-		for id, s := range m.sessions {
-			s.mu.RLock()
-			lastActive := s.LastActive
-			s.mu.RUnlock()
-			if time.Since(lastActive) > 60*time.Minute {
-				delete(m.sessions, id)
+// handleForward 處理轉發邏輯，因為在 runLoop 內執行，所以存取 m.sessions 是極度安全的
+func (m *SessionManager) handleForward(env *pb.Envelope) {
+	var targets []*UserSession
+
+	// 判斷是否為 Chat
+	if chatEnv, ok := env.Payload.(*pb.Envelope_Chat); ok && chatEnv.Chat.Receiver != "" {
+		targetName := chatEnv.Chat.Receiver
+
+		if targetName[0] == '#' {
+			// TODO: Channel routing (#village_10) 先 Broadbast 頂替
+			for _, s := range m.sessions {
+				targets = append(targets, s)
+			}
+		} else {
+			// 私聊
+			var t *UserSession
+			for _, s := range m.sessions {
+				s.mu.RLock()
+				name := s.Username
+				lastActive := s.LastActive
+				s.mu.RUnlock()
+
+				if name == targetName {
+					if t == nil || lastActive.After(t.LastActive) {
+						t = s
+					}
+				}
+			}
+			if t != nil {
+				targets = append(targets, t)
+				// Echo to Sender
+				if env.Header != nil && env.Header.SessionId != t.SessionID {
+					if senderSess, exists := m.sessions[env.Header.SessionId]; exists {
+						targets = append(targets, senderSess)
+					}
+				}
 			}
 		}
-		m.mu.Unlock()
+	} else {
+		// 全廣播
+		for _, s := range m.sessions {
+			targets = append(targets, s)
+		}
+	}
+
+	// 分發至各自的 UserSession Queue 中，這是 thread-safe 的
+	for _, s := range targets {
+		s.QueueMessage(env)
+		if s.TriggerFlush != nil {
+			go s.TriggerFlush()
+		}
 	}
 }
 
@@ -336,13 +373,68 @@ func (m *SessionManager) saveLoop() {
 	}
 }
 
-// SaveSessions 持久化
+// SaveSessions 持久化 (僅取出有 Dirty 標記的 Session 更新至 SQLite WAL)
 func (m *SessionManager) SaveSessions() {
-	// TODO: Phase 1 任務 3.6 完成 database 層後，這裡實作非同步批次更新 SQLite WAL
-	// 類似：database.GetDB().Exec("INSERT INTO ... ON CONFLICT DO UPDATE")
+	// 從 runLoop 索取一份 Thread-Safe 的 Snapshot
+	req := make(chan []*UserSession, 1)
+	m.allSessionsCh <- req
+	sessions := <-req // sessions 得到全部活動清單
+
+	var dirtyStates []*model.SessionState
+	for _, s := range sessions {
+		s.mu.Lock()
+		if s.IsDirty {
+			state := &model.SessionState{
+				SessionID:    s.SessionID,
+				Username:     s.Username,
+				SharedSecret: s.SharedSecret,
+				LastAck:      s.LastAck,
+				NextSeq:      s.NextSeq,
+				MaxClientSeq: s.MaxClientSeq,
+				UpdatedAt:    time.Now(),
+			}
+			dirtyStates = append(dirtyStates, state)
+			s.IsDirty = false
+		}
+		s.mu.Unlock()
+	}
+
+	if len(dirtyStates) > 0 {
+		if err := repo.NewSessionRepo().UpsertBatch(dirtyStates); err != nil {
+			log.Printf("[SessionDB] Failed to UPSERT session states: %v\n", err)
+		} else {
+			// 定期呼叫移除 24h 前的過期連線
+			_ = repo.NewSessionRepo().DeleteExpired()
+		}
+	}
 }
 
 // LoadSessions 載入歷史
 func (m *SessionManager) LoadSessions() {
-	// TODO: Phase 1 任務 3.6 完成 database 層後，從 SQLite 取回未過期的 Session
+	states, err := repo.NewSessionRepo().LoadActive()
+	if err != nil {
+		log.Printf("[SessionDB] LoadSessions warning: %v\n", err)
+		return
+	}
+
+	for _, st := range states {
+		s := &UserSession{
+			SessionID:        st.SessionID,
+			SharedSecret:     st.SharedSecret,
+			LastAck:          st.LastAck,
+			NextSeq:          st.NextSeq,
+			MaxClientSeq:     st.MaxClientSeq,
+			Username:         st.Username,
+			RemoteWindowSize: 128,
+			LastActive:       time.Now(),
+			Outbox:           make([]*pb.Envelope, 0),
+			History:          make([]*pb.Envelope, 0),
+		}
+		// 因為此時 runLoop 還沒跑，可以直接操作 maps
+		m.sessions[st.SessionID] = s 
+	}
+	if len(states) > 0 {
+		log.Printf("[SessionDB] 📥 Loaded %d active sessions for Resume-playback\n", len(states))
+	}
 }
+

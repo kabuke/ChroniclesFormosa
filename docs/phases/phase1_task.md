@@ -70,23 +70,23 @@
 
 ### 3.3 Handler 層（HandleEnvelope 三函數模式）
 - [x] 3.3.1 `server/handler/handler.go`：HandleEnvelope(env, send, broadcast)
-- [ ] 3.3.2 `server/handler/auth.go`：登入驗證（SHA-256 密碼比對）+ LoginResponse
-- [ ] 3.3.3 `server/handler/village_handler.go`：查詢/加入庄頭（VillageAction 分派）
+- [x] 3.3.2 `server/handler/auth.go`：登入驗證（SHA-256 密碼比對）+ LoginResponse
+- [x] 3.3.3 `server/handler/village_handler.go`：查詢/加入庄頭（VillageAction 分派）
 
 ### 3.4 Logic 層
 - [ ] 3.4.1 `server/logic/village/village.go`：庄頭基礎邏輯（建立、加入、查詢）
 - [ ] 3.4.2 `server/logic/village/economy.go`：資源產出基礎計算
 
 ### 3.5 Model 層
-- [ ] 3.5.1 `server/model/player.go`：玩家領域模型
-- [ ] 3.5.2 `server/model/village.go`：庄頭領域模型
-- [ ] 3.5.3 `server/model/tile.go`：地圖格位模型
+- [x] 3.5.1 `server/model/player.go`：玩家領域模型
+- [x] 3.5.2 `server/model/village.go`：庄頭領域模型
+- [x] 3.5.3 `server/model/tile.go`：地圖格位模型
 
 ### 3.6 Repository 層
-- [ ] 3.6.1 `server/repo/interface.go`：定義 PlayerRepo、VillageRepo、MapRepo 介面
-- [ ] 3.6.2 `server/repo/player_repo.go`：SQLite 實作
-- [ ] 3.6.3 `server/repo/village_repo.go`：SQLite 實作
-- [ ] 3.6.4 `server/repo/map_repo.go`：記憶體 + 快照實作
+- [x] 3.6.1 `server/repo/interface.go`：定義 PlayerRepo、VillageRepo、MapRepo 介面
+- [x] 3.6.2 `server/repo/player_repo.go`：SQLite 實作
+- [x] 3.6.3 `server/repo/village_repo.go`：SQLite 實作
+- [x] 3.6.4 `server/repo/map_repo.go`：記憶體 + 快照實作
 
 ### 3.7 AOI 層
 - [ ] 3.7.1 `server/aoi/manager.go`：AOI Manager 基礎框架

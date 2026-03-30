@@ -212,13 +212,8 @@ func HandleConnection(conn *kcp.UDPSession) {
 			currentSess.Acknowledge(env.Header.Ack)
 		}
 
-		// 將業務邏輯拋給 3.3 Handler 層，並注入兩個發送控制的閉包
-		handler.HandleEnvelope(env, func(resp *pb.Envelope) {
-			currentSess.QueueMessage(resp)
-			tryFlush(currentSess)
-		}, func(broadcastEnv *pb.Envelope) {
-			session.GetManager().AddToForwardQueue(broadcastEnv)
-		})
+		// 將業務邏輯拋給 3.3 Handler 層
+		handler.HandleEnvelope(env, currentSess)
 	}
 
 	// 發生 Read 超時或網路錯誤斷下層，保留 Session 的內存狀態交給重連機制或 GC 回收
