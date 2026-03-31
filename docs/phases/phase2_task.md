@@ -15,23 +15,23 @@
 
 ## 一、Protobuf 擴充
 
-- [ ] 1.1 新增 `ChatChannel` 枚舉（VILLAGE / REGION / FACTION / GLOBAL）
-- [ ] 1.2 定義 `ChatSendReq` / `ChatBroadcast` / `IntelHint`
-- [ ] 1.3 定義 `TensionUpdate`
-- [ ] 1.4 定義 `DiplomacyAction` 枚舉 + `DiplomacyReq` / `DiplomacyResp`
-- [ ] 1.5 定義 `StaminaUpdate`
-- [ ] 1.6 定義 `VillageElectReq` / `VillageElectResp`
-- [ ] 1.7 定義 `VillageImpeachReq` / `VillageImpeachResp`
-- [ ] 1.8 執行 `gen_proto.sh` 確認生成無誤
+- [x] 1.1 新增 `ChatChannel` 枚舉（VILLAGE / REGION / FACTION / GLOBAL）
+- [x] 1.2 定義 `ChatSendReq` / `ChatBroadcast` / `IntelHint`
+- [x] 1.3 定義 `TensionUpdate`
+- [x] 1.4 定義 `DiplomacyAction` 枚舉 + `DiplomacyReq` / `DiplomacyResp`
+- [x] 1.5 定義 `StaminaUpdate`
+- [x] 1.6 定義 `VillageElectReq` / `VillageElectResp`
+- [x] 1.7 定義 `VillageImpeachReq` / `VillageImpeachResp`
+- [x] 1.8 執行 `gen_proto.sh` 確認生成無誤
 
 ---
 
 ## 二、伺服器端
 
 ### 2.1 聊天系統
-- [ ] 2.1.1 `server/handler/chat_handler.go`：接收/分派聊天訊息
-- [ ] 2.1.2 `server/logic/social/chat.go`：頻道路由邏輯（四級）
-- [ ] 2.1.3 實作聊天廣播（只推送給同頻道玩家）
+- [x] 2.1.1 `server/handler/chat_handler.go`：接收/分派聊天訊息
+- [x] 2.1.2 `server/logic/social/chat.go`：頻道路由邏輯（四級）
+- [x] 2.1.3 實作聊天廣播（只推送給同頻道玩家）
 
 ### 2.2 關鍵字情報感測
 - [ ] 2.2.1 `server/logic/social/intel.go`：關鍵字清單管理

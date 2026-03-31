@@ -130,6 +130,58 @@ func (ChatChannelType) EnumDescriptor() ([]byte, []int) {
 	return file_message_proto_rawDescGZIP(), []int{1}
 }
 
+type DiplomacyType int32
+
+const (
+	DiplomacyType_DIPLO_ALLIANCE      DiplomacyType = 0 // 結盟
+	DiplomacyType_DIPLO_MARRIAGE      DiplomacyType = 1 // 聯姻
+	DiplomacyType_DIPLO_BLOOD_BROTHER DiplomacyType = 2 // 拜把
+	DiplomacyType_DIPLO_RECONCILE     DiplomacyType = 3 // 理番/和談
+)
+
+// Enum value maps for DiplomacyType.
+var (
+	DiplomacyType_name = map[int32]string{
+		0: "DIPLO_ALLIANCE",
+		1: "DIPLO_MARRIAGE",
+		2: "DIPLO_BLOOD_BROTHER",
+		3: "DIPLO_RECONCILE",
+	}
+	DiplomacyType_value = map[string]int32{
+		"DIPLO_ALLIANCE":      0,
+		"DIPLO_MARRIAGE":      1,
+		"DIPLO_BLOOD_BROTHER": 2,
+		"DIPLO_RECONCILE":     3,
+	}
+)
+
+func (x DiplomacyType) Enum() *DiplomacyType {
+	p := new(DiplomacyType)
+	*p = x
+	return p
+}
+
+func (x DiplomacyType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DiplomacyType) Descriptor() protoreflect.EnumDescriptor {
+	return file_message_proto_enumTypes[2].Descriptor()
+}
+
+func (DiplomacyType) Type() protoreflect.EnumType {
+	return &file_message_proto_enumTypes[2]
+}
+
+func (x DiplomacyType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DiplomacyType.Descriptor instead.
+func (DiplomacyType) EnumDescriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{2}
+}
+
 type Packet struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1265,6 +1317,323 @@ func (x *IntelHint) GetDirection() string {
 	return ""
 }
 
+type TensionUpdate struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	VillageId    int64  `protobuf:"varint,1,opt,name=village_id,json=villageId,proto3" json:"village_id,omitempty"`
+	TensionValue int32  `protobuf:"varint,2,opt,name=tension_value,json=tensionValue,proto3" json:"tension_value,omitempty"`
+	VisualLevel  string `protobuf:"bytes,3,opt,name=visual_level,json=visualLevel,proto3" json:"visual_level,omitempty"` // PEACE, UNEASY, TENSE, RIOT
+}
+
+func (x *TensionUpdate) Reset() {
+	*x = TensionUpdate{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TensionUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TensionUpdate) ProtoMessage() {}
+
+func (x *TensionUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TensionUpdate.ProtoReflect.Descriptor instead.
+func (*TensionUpdate) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *TensionUpdate) GetVillageId() int64 {
+	if x != nil {
+		return x.VillageId
+	}
+	return 0
+}
+
+func (x *TensionUpdate) GetTensionValue() int32 {
+	if x != nil {
+		return x.TensionValue
+	}
+	return 0
+}
+
+func (x *TensionUpdate) GetVisualLevel() string {
+	if x != nil {
+		return x.VisualLevel
+	}
+	return ""
+}
+
+type StaminaUpdate struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Current int32 `protobuf:"varint,1,opt,name=current,proto3" json:"current,omitempty"`
+	Max     int32 `protobuf:"varint,2,opt,name=max,proto3" json:"max,omitempty"`
+}
+
+func (x *StaminaUpdate) Reset() {
+	*x = StaminaUpdate{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StaminaUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StaminaUpdate) ProtoMessage() {}
+
+func (x *StaminaUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StaminaUpdate.ProtoReflect.Descriptor instead.
+func (*StaminaUpdate) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *StaminaUpdate) GetCurrent() int32 {
+	if x != nil {
+		return x.Current
+	}
+	return 0
+}
+
+func (x *StaminaUpdate) GetMax() int32 {
+	if x != nil {
+		return x.Max
+	}
+	return 0
+}
+
+type DiplomacyAction struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Action:
+	//
+	//	*DiplomacyAction_Req
+	//	*DiplomacyAction_Resp
+	Action isDiplomacyAction_Action `protobuf_oneof:"action"`
+}
+
+func (x *DiplomacyAction) Reset() {
+	*x = DiplomacyAction{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DiplomacyAction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DiplomacyAction) ProtoMessage() {}
+
+func (x *DiplomacyAction) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DiplomacyAction.ProtoReflect.Descriptor instead.
+func (*DiplomacyAction) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{16}
+}
+
+func (m *DiplomacyAction) GetAction() isDiplomacyAction_Action {
+	if m != nil {
+		return m.Action
+	}
+	return nil
+}
+
+func (x *DiplomacyAction) GetReq() *DiplomacyReq {
+	if x, ok := x.GetAction().(*DiplomacyAction_Req); ok {
+		return x.Req
+	}
+	return nil
+}
+
+func (x *DiplomacyAction) GetResp() *DiplomacyResp {
+	if x, ok := x.GetAction().(*DiplomacyAction_Resp); ok {
+		return x.Resp
+	}
+	return nil
+}
+
+type isDiplomacyAction_Action interface {
+	isDiplomacyAction_Action()
+}
+
+type DiplomacyAction_Req struct {
+	Req *DiplomacyReq `protobuf:"bytes,1,opt,name=req,proto3,oneof"`
+}
+
+type DiplomacyAction_Resp struct {
+	Resp *DiplomacyResp `protobuf:"bytes,2,opt,name=resp,proto3,oneof"`
+}
+
+func (*DiplomacyAction_Req) isDiplomacyAction_Action() {}
+
+func (*DiplomacyAction_Resp) isDiplomacyAction_Action() {}
+
+type DiplomacyReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Type            DiplomacyType `protobuf:"varint,1,opt,name=type,proto3,enum=formosa.DiplomacyType" json:"type,omitempty"`
+	TargetVillageId int64         `protobuf:"varint,2,opt,name=target_village_id,json=targetVillageId,proto3" json:"target_village_id,omitempty"`
+	TargetPlayerId  int64         `protobuf:"varint,3,opt,name=target_player_id,json=targetPlayerId,proto3" json:"target_player_id,omitempty"`
+}
+
+func (x *DiplomacyReq) Reset() {
+	*x = DiplomacyReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DiplomacyReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DiplomacyReq) ProtoMessage() {}
+
+func (x *DiplomacyReq) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DiplomacyReq.ProtoReflect.Descriptor instead.
+func (*DiplomacyReq) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *DiplomacyReq) GetType() DiplomacyType {
+	if x != nil {
+		return x.Type
+	}
+	return DiplomacyType_DIPLO_ALLIANCE
+}
+
+func (x *DiplomacyReq) GetTargetVillageId() int64 {
+	if x != nil {
+		return x.TargetVillageId
+	}
+	return 0
+}
+
+func (x *DiplomacyReq) GetTargetPlayerId() int64 {
+	if x != nil {
+		return x.TargetPlayerId
+	}
+	return 0
+}
+
+type DiplomacyResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success    bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	ResultDesc string `protobuf:"bytes,2,opt,name=result_desc,json=resultDesc,proto3" json:"result_desc,omitempty"`
+}
+
+func (x *DiplomacyResp) Reset() {
+	*x = DiplomacyResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DiplomacyResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DiplomacyResp) ProtoMessage() {}
+
+func (x *DiplomacyResp) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DiplomacyResp.ProtoReflect.Descriptor instead.
+func (*DiplomacyResp) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *DiplomacyResp) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *DiplomacyResp) GetResultDesc() string {
+	if x != nil {
+		return x.ResultDesc
+	}
+	return ""
+}
+
 type VillageAction struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1278,13 +1647,15 @@ type VillageAction struct {
 	//	*VillageAction_JoinResp
 	//	*VillageAction_ElectReq
 	//	*VillageAction_ElectResp
+	//	*VillageAction_ImpeachReq
+	//	*VillageAction_ImpeachResp
 	Action isVillageAction_Action `protobuf_oneof:"action"`
 }
 
 func (x *VillageAction) Reset() {
 	*x = VillageAction{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[14]
+		mi := &file_message_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1297,7 +1668,7 @@ func (x *VillageAction) String() string {
 func (*VillageAction) ProtoMessage() {}
 
 func (x *VillageAction) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[14]
+	mi := &file_message_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1310,7 +1681,7 @@ func (x *VillageAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VillageAction.ProtoReflect.Descriptor instead.
 func (*VillageAction) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{14}
+	return file_message_proto_rawDescGZIP(), []int{19}
 }
 
 func (m *VillageAction) GetAction() isVillageAction_Action {
@@ -1362,6 +1733,20 @@ func (x *VillageAction) GetElectResp() *VillageElectResp {
 	return nil
 }
 
+func (x *VillageAction) GetImpeachReq() *VillageImpeachReq {
+	if x, ok := x.GetAction().(*VillageAction_ImpeachReq); ok {
+		return x.ImpeachReq
+	}
+	return nil
+}
+
+func (x *VillageAction) GetImpeachResp() *VillageImpeachResp {
+	if x, ok := x.GetAction().(*VillageAction_ImpeachResp); ok {
+		return x.ImpeachResp
+	}
+	return nil
+}
+
 type isVillageAction_Action interface {
 	isVillageAction_Action()
 }
@@ -1390,6 +1775,14 @@ type VillageAction_ElectResp struct {
 	ElectResp *VillageElectResp `protobuf:"bytes,6,opt,name=elect_resp,json=electResp,proto3,oneof"`
 }
 
+type VillageAction_ImpeachReq struct {
+	ImpeachReq *VillageImpeachReq `protobuf:"bytes,7,opt,name=impeach_req,json=impeachReq,proto3,oneof"`
+}
+
+type VillageAction_ImpeachResp struct {
+	ImpeachResp *VillageImpeachResp `protobuf:"bytes,8,opt,name=impeach_resp,json=impeachResp,proto3,oneof"`
+}
+
 func (*VillageAction_InfoReq) isVillageAction_Action() {}
 
 func (*VillageAction_InfoResp) isVillageAction_Action() {}
@@ -1402,6 +1795,10 @@ func (*VillageAction_ElectReq) isVillageAction_Action() {}
 
 func (*VillageAction_ElectResp) isVillageAction_Action() {}
 
+func (*VillageAction_ImpeachReq) isVillageAction_Action() {}
+
+func (*VillageAction_ImpeachResp) isVillageAction_Action() {}
+
 type VillageInfoReq struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1413,7 +1810,7 @@ type VillageInfoReq struct {
 func (x *VillageInfoReq) Reset() {
 	*x = VillageInfoReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[15]
+		mi := &file_message_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1426,7 +1823,7 @@ func (x *VillageInfoReq) String() string {
 func (*VillageInfoReq) ProtoMessage() {}
 
 func (x *VillageInfoReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[15]
+	mi := &file_message_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1439,7 +1836,7 @@ func (x *VillageInfoReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VillageInfoReq.ProtoReflect.Descriptor instead.
 func (*VillageInfoReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{15}
+	return file_message_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *VillageInfoReq) GetVillageId() int64 {
@@ -1465,7 +1862,7 @@ type VillageInfoResp struct {
 func (x *VillageInfoResp) Reset() {
 	*x = VillageInfoResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[16]
+		mi := &file_message_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1478,7 +1875,7 @@ func (x *VillageInfoResp) String() string {
 func (*VillageInfoResp) ProtoMessage() {}
 
 func (x *VillageInfoResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[16]
+	mi := &file_message_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1491,7 +1888,7 @@ func (x *VillageInfoResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VillageInfoResp.ProtoReflect.Descriptor instead.
 func (*VillageInfoResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{16}
+	return file_message_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *VillageInfoResp) GetVillageId() int64 {
@@ -1547,7 +1944,7 @@ type VillageJoinReq struct {
 func (x *VillageJoinReq) Reset() {
 	*x = VillageJoinReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[17]
+		mi := &file_message_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1560,7 +1957,7 @@ func (x *VillageJoinReq) String() string {
 func (*VillageJoinReq) ProtoMessage() {}
 
 func (x *VillageJoinReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[17]
+	mi := &file_message_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1573,7 +1970,7 @@ func (x *VillageJoinReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VillageJoinReq.ProtoReflect.Descriptor instead.
 func (*VillageJoinReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{17}
+	return file_message_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *VillageJoinReq) GetVillageId() int64 {
@@ -1595,7 +1992,7 @@ type VillageJoinResp struct {
 func (x *VillageJoinResp) Reset() {
 	*x = VillageJoinResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[18]
+		mi := &file_message_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1608,7 +2005,7 @@ func (x *VillageJoinResp) String() string {
 func (*VillageJoinResp) ProtoMessage() {}
 
 func (x *VillageJoinResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[18]
+	mi := &file_message_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1621,7 +2018,7 @@ func (x *VillageJoinResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VillageJoinResp.ProtoReflect.Descriptor instead.
 func (*VillageJoinResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{18}
+	return file_message_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *VillageJoinResp) GetSuccess() bool {
@@ -1650,7 +2047,7 @@ type VillageElectReq struct {
 func (x *VillageElectReq) Reset() {
 	*x = VillageElectReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[19]
+		mi := &file_message_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1663,7 +2060,7 @@ func (x *VillageElectReq) String() string {
 func (*VillageElectReq) ProtoMessage() {}
 
 func (x *VillageElectReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[19]
+	mi := &file_message_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1676,7 +2073,7 @@ func (x *VillageElectReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VillageElectReq.ProtoReflect.Descriptor instead.
 func (*VillageElectReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{19}
+	return file_message_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *VillageElectReq) GetVillageId() int64 {
@@ -1705,7 +2102,7 @@ type VillageElectResp struct {
 func (x *VillageElectResp) Reset() {
 	*x = VillageElectResp{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[20]
+		mi := &file_message_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1718,7 +2115,7 @@ func (x *VillageElectResp) String() string {
 func (*VillageElectResp) ProtoMessage() {}
 
 func (x *VillageElectResp) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[20]
+	mi := &file_message_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1731,7 +2128,7 @@ func (x *VillageElectResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VillageElectResp.ProtoReflect.Descriptor instead.
 func (*VillageElectResp) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{20}
+	return file_message_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *VillageElectResp) GetSuccess() bool {
@@ -1742,6 +2139,116 @@ func (x *VillageElectResp) GetSuccess() bool {
 }
 
 func (x *VillageElectResp) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type VillageImpeachReq struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	VillageId     int64  `protobuf:"varint,1,opt,name=village_id,json=villageId,proto3" json:"village_id,omitempty"`
+	TargetHeadman string `protobuf:"bytes,2,opt,name=target_headman,json=targetHeadman,proto3" json:"target_headman,omitempty"`
+}
+
+func (x *VillageImpeachReq) Reset() {
+	*x = VillageImpeachReq{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[26]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *VillageImpeachReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VillageImpeachReq) ProtoMessage() {}
+
+func (x *VillageImpeachReq) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[26]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VillageImpeachReq.ProtoReflect.Descriptor instead.
+func (*VillageImpeachReq) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *VillageImpeachReq) GetVillageId() int64 {
+	if x != nil {
+		return x.VillageId
+	}
+	return 0
+}
+
+func (x *VillageImpeachReq) GetTargetHeadman() string {
+	if x != nil {
+		return x.TargetHeadman
+	}
+	return ""
+}
+
+type VillageImpeachResp struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *VillageImpeachResp) Reset() {
+	*x = VillageImpeachResp{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_message_proto_msgTypes[27]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *VillageImpeachResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VillageImpeachResp) ProtoMessage() {}
+
+func (x *VillageImpeachResp) ProtoReflect() protoreflect.Message {
+	mi := &file_message_proto_msgTypes[27]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VillageImpeachResp.ProtoReflect.Descriptor instead.
+func (*VillageImpeachResp) Descriptor() ([]byte, []int) {
+	return file_message_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *VillageImpeachResp) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *VillageImpeachResp) GetMessage() string {
 	if x != nil {
 		return x.Message
 	}
@@ -1768,7 +2275,7 @@ type DisasterAction struct {
 func (x *DisasterAction) Reset() {
 	*x = DisasterAction{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[21]
+		mi := &file_message_proto_msgTypes[28]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1781,7 +2288,7 @@ func (x *DisasterAction) String() string {
 func (*DisasterAction) ProtoMessage() {}
 
 func (x *DisasterAction) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[21]
+	mi := &file_message_proto_msgTypes[28]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1794,7 +2301,7 @@ func (x *DisasterAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DisasterAction.ProtoReflect.Descriptor instead.
 func (*DisasterAction) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{21}
+	return file_message_proto_rawDescGZIP(), []int{28}
 }
 
 func (m *DisasterAction) GetAction() isDisasterAction_Action {
@@ -1912,7 +2419,7 @@ type EarthquakeNotify struct {
 func (x *EarthquakeNotify) Reset() {
 	*x = EarthquakeNotify{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[22]
+		mi := &file_message_proto_msgTypes[29]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1925,7 +2432,7 @@ func (x *EarthquakeNotify) String() string {
 func (*EarthquakeNotify) ProtoMessage() {}
 
 func (x *EarthquakeNotify) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[22]
+	mi := &file_message_proto_msgTypes[29]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1938,7 +2445,7 @@ func (x *EarthquakeNotify) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EarthquakeNotify.ProtoReflect.Descriptor instead.
 func (*EarthquakeNotify) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{22}
+	return file_message_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *EarthquakeNotify) GetEpicenterTileId() int64 {
@@ -1974,7 +2481,7 @@ type TyphoonNotify struct {
 func (x *TyphoonNotify) Reset() {
 	*x = TyphoonNotify{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[23]
+		mi := &file_message_proto_msgTypes[30]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1987,7 +2494,7 @@ func (x *TyphoonNotify) String() string {
 func (*TyphoonNotify) ProtoMessage() {}
 
 func (x *TyphoonNotify) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[23]
+	mi := &file_message_proto_msgTypes[30]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2000,7 +2507,7 @@ func (x *TyphoonNotify) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TyphoonNotify.ProtoReflect.Descriptor instead.
 func (*TyphoonNotify) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{23}
+	return file_message_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *TyphoonNotify) GetPathTiles() []int64 {
@@ -2029,7 +2536,7 @@ type DisasterWarning struct {
 func (x *DisasterWarning) Reset() {
 	*x = DisasterWarning{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[24]
+		mi := &file_message_proto_msgTypes[31]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2042,7 +2549,7 @@ func (x *DisasterWarning) String() string {
 func (*DisasterWarning) ProtoMessage() {}
 
 func (x *DisasterWarning) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[24]
+	mi := &file_message_proto_msgTypes[31]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2055,7 +2562,7 @@ func (x *DisasterWarning) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DisasterWarning.ProtoReflect.Descriptor instead.
 func (*DisasterWarning) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{24}
+	return file_message_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *DisasterWarning) GetMessage() string {
@@ -2083,7 +2590,7 @@ type ReliefGameStart struct {
 func (x *ReliefGameStart) Reset() {
 	*x = ReliefGameStart{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[25]
+		mi := &file_message_proto_msgTypes[32]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2096,7 +2603,7 @@ func (x *ReliefGameStart) String() string {
 func (*ReliefGameStart) ProtoMessage() {}
 
 func (x *ReliefGameStart) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[25]
+	mi := &file_message_proto_msgTypes[32]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2109,7 +2616,7 @@ func (x *ReliefGameStart) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReliefGameStart.ProtoReflect.Descriptor instead.
 func (*ReliefGameStart) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{25}
+	return file_message_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ReliefGameStart) GetDisasterId() int64 {
@@ -2130,7 +2637,7 @@ type ReliefDonateReq struct {
 func (x *ReliefDonateReq) Reset() {
 	*x = ReliefDonateReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[26]
+		mi := &file_message_proto_msgTypes[33]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2143,7 +2650,7 @@ func (x *ReliefDonateReq) String() string {
 func (*ReliefDonateReq) ProtoMessage() {}
 
 func (x *ReliefDonateReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[26]
+	mi := &file_message_proto_msgTypes[33]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2156,7 +2663,7 @@ func (x *ReliefDonateReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReliefDonateReq.ProtoReflect.Descriptor instead.
 func (*ReliefDonateReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{26}
+	return file_message_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ReliefDonateReq) GetResourceAmount() int32 {
@@ -2177,7 +2684,7 @@ type ReliefRouteSubmit struct {
 func (x *ReliefRouteSubmit) Reset() {
 	*x = ReliefRouteSubmit{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[27]
+		mi := &file_message_proto_msgTypes[34]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2190,7 +2697,7 @@ func (x *ReliefRouteSubmit) String() string {
 func (*ReliefRouteSubmit) ProtoMessage() {}
 
 func (x *ReliefRouteSubmit) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[27]
+	mi := &file_message_proto_msgTypes[34]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2203,7 +2710,7 @@ func (x *ReliefRouteSubmit) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReliefRouteSubmit.ProtoReflect.Descriptor instead.
 func (*ReliefRouteSubmit) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{27}
+	return file_message_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ReliefRouteSubmit) GetWaypoints() []int64 {
@@ -2226,7 +2733,7 @@ type ReliefResult struct {
 func (x *ReliefResult) Reset() {
 	*x = ReliefResult{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[28]
+		mi := &file_message_proto_msgTypes[35]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2239,7 +2746,7 @@ func (x *ReliefResult) String() string {
 func (*ReliefResult) ProtoMessage() {}
 
 func (x *ReliefResult) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[28]
+	mi := &file_message_proto_msgTypes[35]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2252,7 +2759,7 @@ func (x *ReliefResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReliefResult.ProtoReflect.Descriptor instead.
 func (*ReliefResult) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{28}
+	return file_message_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *ReliefResult) GetSuccess() bool {
@@ -2292,7 +2799,7 @@ type BattleAction struct {
 func (x *BattleAction) Reset() {
 	*x = BattleAction{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[29]
+		mi := &file_message_proto_msgTypes[36]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2305,7 +2812,7 @@ func (x *BattleAction) String() string {
 func (*BattleAction) ProtoMessage() {}
 
 func (x *BattleAction) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[29]
+	mi := &file_message_proto_msgTypes[36]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2318,7 +2825,7 @@ func (x *BattleAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BattleAction.ProtoReflect.Descriptor instead.
 func (*BattleAction) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{29}
+	return file_message_proto_rawDescGZIP(), []int{36}
 }
 
 func (m *BattleAction) GetAction() isBattleAction_Action {
@@ -2383,7 +2890,7 @@ type BattleStartNotify struct {
 func (x *BattleStartNotify) Reset() {
 	*x = BattleStartNotify{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[30]
+		mi := &file_message_proto_msgTypes[37]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2396,7 +2903,7 @@ func (x *BattleStartNotify) String() string {
 func (*BattleStartNotify) ProtoMessage() {}
 
 func (x *BattleStartNotify) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[30]
+	mi := &file_message_proto_msgTypes[37]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2409,7 +2916,7 @@ func (x *BattleStartNotify) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BattleStartNotify.ProtoReflect.Descriptor instead.
 func (*BattleStartNotify) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{30}
+	return file_message_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *BattleStartNotify) GetBattleId() int64 {
@@ -2439,7 +2946,7 @@ type BattleDeployReq struct {
 func (x *BattleDeployReq) Reset() {
 	*x = BattleDeployReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[31]
+		mi := &file_message_proto_msgTypes[38]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2452,7 +2959,7 @@ func (x *BattleDeployReq) String() string {
 func (*BattleDeployReq) ProtoMessage() {}
 
 func (x *BattleDeployReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[31]
+	mi := &file_message_proto_msgTypes[38]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2465,7 +2972,7 @@ func (x *BattleDeployReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BattleDeployReq.ProtoReflect.Descriptor instead.
 func (*BattleDeployReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{31}
+	return file_message_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *BattleDeployReq) GetBattleId() int64 {
@@ -2503,7 +3010,7 @@ type BattleResultNotify struct {
 func (x *BattleResultNotify) Reset() {
 	*x = BattleResultNotify{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[32]
+		mi := &file_message_proto_msgTypes[39]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2516,7 +3023,7 @@ func (x *BattleResultNotify) String() string {
 func (*BattleResultNotify) ProtoMessage() {}
 
 func (x *BattleResultNotify) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[32]
+	mi := &file_message_proto_msgTypes[39]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2529,7 +3036,7 @@ func (x *BattleResultNotify) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BattleResultNotify.ProtoReflect.Descriptor instead.
 func (*BattleResultNotify) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{32}
+	return file_message_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *BattleResultNotify) GetBattleId() int64 {
@@ -2572,7 +3079,7 @@ type AOIUpdate struct {
 func (x *AOIUpdate) Reset() {
 	*x = AOIUpdate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[33]
+		mi := &file_message_proto_msgTypes[40]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2585,7 +3092,7 @@ func (x *AOIUpdate) String() string {
 func (*AOIUpdate) ProtoMessage() {}
 
 func (x *AOIUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[33]
+	mi := &file_message_proto_msgTypes[40]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2598,7 +3105,7 @@ func (x *AOIUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AOIUpdate.ProtoReflect.Descriptor instead.
 func (*AOIUpdate) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{33}
+	return file_message_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *AOIUpdate) GetEnters() []*AOIUpdate_EntityData {
@@ -2627,7 +3134,7 @@ type MapSync struct {
 func (x *MapSync) Reset() {
 	*x = MapSync{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[34]
+		mi := &file_message_proto_msgTypes[41]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2640,7 +3147,7 @@ func (x *MapSync) String() string {
 func (*MapSync) ProtoMessage() {}
 
 func (x *MapSync) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[34]
+	mi := &file_message_proto_msgTypes[41]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2653,7 +3160,7 @@ func (x *MapSync) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MapSync.ProtoReflect.Descriptor instead.
 func (*MapSync) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{34}
+	return file_message_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *MapSync) GetChunkId() int32 {
@@ -2682,7 +3189,7 @@ type ClientMoveReq struct {
 func (x *ClientMoveReq) Reset() {
 	*x = ClientMoveReq{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[35]
+		mi := &file_message_proto_msgTypes[42]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2695,7 +3202,7 @@ func (x *ClientMoveReq) String() string {
 func (*ClientMoveReq) ProtoMessage() {}
 
 func (x *ClientMoveReq) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[35]
+	mi := &file_message_proto_msgTypes[42]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2708,7 +3215,7 @@ func (x *ClientMoveReq) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientMoveReq.ProtoReflect.Descriptor instead.
 func (*ClientMoveReq) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{35}
+	return file_message_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *ClientMoveReq) GetX() float32 {
@@ -2736,7 +3243,7 @@ type AOIBroadcast struct {
 func (x *AOIBroadcast) Reset() {
 	*x = AOIBroadcast{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[36]
+		mi := &file_message_proto_msgTypes[43]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2749,7 +3256,7 @@ func (x *AOIBroadcast) String() string {
 func (*AOIBroadcast) ProtoMessage() {}
 
 func (x *AOIBroadcast) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[36]
+	mi := &file_message_proto_msgTypes[43]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2762,7 +3269,7 @@ func (x *AOIBroadcast) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AOIBroadcast.ProtoReflect.Descriptor instead.
 func (*AOIBroadcast) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{36}
+	return file_message_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *AOIBroadcast) GetEntities() []*AOIBroadcast_EntityPos {
@@ -2786,7 +3293,7 @@ type AOIUpdate_EntityData struct {
 func (x *AOIUpdate_EntityData) Reset() {
 	*x = AOIUpdate_EntityData{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[37]
+		mi := &file_message_proto_msgTypes[44]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2799,7 +3306,7 @@ func (x *AOIUpdate_EntityData) String() string {
 func (*AOIUpdate_EntityData) ProtoMessage() {}
 
 func (x *AOIUpdate_EntityData) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[37]
+	mi := &file_message_proto_msgTypes[44]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2812,7 +3319,7 @@ func (x *AOIUpdate_EntityData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AOIUpdate_EntityData.ProtoReflect.Descriptor instead.
 func (*AOIUpdate_EntityData) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{33, 0}
+	return file_message_proto_rawDescGZIP(), []int{40, 0}
 }
 
 func (x *AOIUpdate_EntityData) GetEntityId() int64 {
@@ -2856,7 +3363,7 @@ type AOIBroadcast_EntityPos struct {
 func (x *AOIBroadcast_EntityPos) Reset() {
 	*x = AOIBroadcast_EntityPos{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_message_proto_msgTypes[38]
+		mi := &file_message_proto_msgTypes[45]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2869,7 +3376,7 @@ func (x *AOIBroadcast_EntityPos) String() string {
 func (*AOIBroadcast_EntityPos) ProtoMessage() {}
 
 func (x *AOIBroadcast_EntityPos) ProtoReflect() protoreflect.Message {
-	mi := &file_message_proto_msgTypes[38]
+	mi := &file_message_proto_msgTypes[45]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2882,7 +3389,7 @@ func (x *AOIBroadcast_EntityPos) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AOIBroadcast_EntityPos.ProtoReflect.Descriptor instead.
 func (*AOIBroadcast_EntityPos) Descriptor() ([]byte, []int) {
-	return file_message_proto_rawDescGZIP(), []int{36, 0}
+	return file_message_proto_rawDescGZIP(), []int{43, 0}
 }
 
 func (x *AOIBroadcast_EntityPos) GetUsername() string {
@@ -3060,59 +3567,110 @@ var file_message_proto_rawDesc = []byte{
 	0x5f, 0x74, 0x65, 0x78, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x68, 0x69, 0x6e,
 	0x74, 0x54, 0x65, 0x78, 0x74, 0x12, 0x1c, 0x0a, 0x09, 0x64, 0x69, 0x72, 0x65, 0x63, 0x74, 0x69,
 	0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x64, 0x69, 0x72, 0x65, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x22, 0xec, 0x02, 0x0a, 0x0d, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x41,
-	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x34, 0x0a, 0x08, 0x69, 0x6e, 0x66, 0x6f, 0x5f, 0x72, 0x65,
-	0x71, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73,
-	0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71,
-	0x48, 0x00, 0x52, 0x07, 0x69, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x12, 0x37, 0x0a, 0x09, 0x69,
-	0x6e, 0x66, 0x6f, 0x5f, 0x72, 0x65, 0x73, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18,
-	0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65,
-	0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x48, 0x00, 0x52, 0x08, 0x69, 0x6e, 0x66, 0x6f,
-	0x52, 0x65, 0x73, 0x70, 0x12, 0x34, 0x0a, 0x08, 0x6a, 0x6f, 0x69, 0x6e, 0x5f, 0x72, 0x65, 0x71,
-	0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61,
-	0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x4a, 0x6f, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x48,
-	0x00, 0x52, 0x07, 0x6a, 0x6f, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x12, 0x37, 0x0a, 0x09, 0x6a, 0x6f,
-	0x69, 0x6e, 0x5f, 0x72, 0x65, 0x73, 0x70, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e,
-	0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x4a,
-	0x6f, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x48, 0x00, 0x52, 0x08, 0x6a, 0x6f, 0x69, 0x6e, 0x52,
-	0x65, 0x73, 0x70, 0x12, 0x37, 0x0a, 0x09, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x5f, 0x72, 0x65, 0x71,
-	0x18, 0x05, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61,
-	0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x45, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71,
-	0x48, 0x00, 0x52, 0x08, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x3a, 0x0a, 0x0a,
-	0x65, 0x6c, 0x65, 0x63, 0x74, 0x5f, 0x72, 0x65, 0x73, 0x70, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b,
-	0x32, 0x19, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61,
-	0x67, 0x65, 0x45, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x48, 0x00, 0x52, 0x09, 0x65,
-	0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x42, 0x08, 0x0a, 0x06, 0x61, 0x63, 0x74, 0x69,
-	0x6f, 0x6e, 0x22, 0x2f, 0x0a, 0x0e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66,
-	0x6f, 0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f,
+	0x69, 0x6f, 0x6e, 0x22, 0x76, 0x0a, 0x0d, 0x54, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f,
 	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67,
-	0x65, 0x49, 0x64, 0x22, 0xbb, 0x01, 0x0a, 0x0f, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49,
-	0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x12, 0x1d, 0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61,
+	0x65, 0x49, 0x64, 0x12, 0x23, 0x0a, 0x0d, 0x74, 0x65, 0x6e, 0x73, 0x69, 0x6f, 0x6e, 0x5f, 0x76,
+	0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0c, 0x74, 0x65, 0x6e, 0x73,
+	0x69, 0x6f, 0x6e, 0x56, 0x61, 0x6c, 0x75, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x76, 0x69, 0x73, 0x75,
+	0x61, 0x6c, 0x5f, 0x6c, 0x65, 0x76, 0x65, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b,
+	0x76, 0x69, 0x73, 0x75, 0x61, 0x6c, 0x4c, 0x65, 0x76, 0x65, 0x6c, 0x22, 0x3b, 0x0a, 0x0d, 0x53,
+	0x74, 0x61, 0x6d, 0x69, 0x6e, 0x61, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x18, 0x0a, 0x07,
+	0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x07, 0x63,
+	0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x6d, 0x61, 0x78, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x05, 0x52, 0x03, 0x6d, 0x61, 0x78, 0x22, 0x74, 0x0a, 0x0f, 0x44, 0x69, 0x70, 0x6c,
+	0x6f, 0x6d, 0x61, 0x63, 0x79, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x29, 0x0a, 0x03, 0x72,
+	0x65, 0x71, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f,
+	0x73, 0x61, 0x2e, 0x44, 0x69, 0x70, 0x6c, 0x6f, 0x6d, 0x61, 0x63, 0x79, 0x52, 0x65, 0x71, 0x48,
+	0x00, 0x52, 0x03, 0x72, 0x65, 0x71, 0x12, 0x2c, 0x0a, 0x04, 0x72, 0x65, 0x73, 0x70, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x44,
+	0x69, 0x70, 0x6c, 0x6f, 0x6d, 0x61, 0x63, 0x79, 0x52, 0x65, 0x73, 0x70, 0x48, 0x00, 0x52, 0x04,
+	0x72, 0x65, 0x73, 0x70, 0x42, 0x08, 0x0a, 0x06, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x90,
+	0x01, 0x0a, 0x0c, 0x44, 0x69, 0x70, 0x6c, 0x6f, 0x6d, 0x61, 0x63, 0x79, 0x52, 0x65, 0x71, 0x12,
+	0x2a, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x16, 0x2e,
+	0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x44, 0x69, 0x70, 0x6c, 0x6f, 0x6d, 0x61, 0x63,
+	0x79, 0x54, 0x79, 0x70, 0x65, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x2a, 0x0a, 0x11, 0x74,
+	0x61, 0x72, 0x67, 0x65, 0x74, 0x5f, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0f, 0x74, 0x61, 0x72, 0x67, 0x65, 0x74, 0x56, 0x69,
+	0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x64, 0x12, 0x28, 0x0a, 0x10, 0x74, 0x61, 0x72, 0x67, 0x65,
+	0x74, 0x5f, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x03, 0x52, 0x0e, 0x74, 0x61, 0x72, 0x67, 0x65, 0x74, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x49,
+	0x64, 0x22, 0x4a, 0x0a, 0x0d, 0x44, 0x69, 0x70, 0x6c, 0x6f, 0x6d, 0x61, 0x63, 0x79, 0x52, 0x65,
+	0x73, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x1f, 0x0a, 0x0b,
+	0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x5f, 0x64, 0x65, 0x73, 0x63, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0a, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x44, 0x65, 0x73, 0x63, 0x22, 0xed, 0x03,
+	0x0a, 0x0d, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x41, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12,
+	0x34, 0x0a, 0x08, 0x69, 0x6e, 0x66, 0x6f, 0x5f, 0x72, 0x65, 0x71, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x17, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c,
+	0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x48, 0x00, 0x52, 0x07, 0x69, 0x6e,
+	0x66, 0x6f, 0x52, 0x65, 0x71, 0x12, 0x37, 0x0a, 0x09, 0x69, 0x6e, 0x66, 0x6f, 0x5f, 0x72, 0x65,
+	0x73, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f,
+	0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65,
+	0x73, 0x70, 0x48, 0x00, 0x52, 0x08, 0x69, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x73, 0x70, 0x12, 0x34,
+	0x0a, 0x08, 0x6a, 0x6f, 0x69, 0x6e, 0x5f, 0x72, 0x65, 0x71, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x17, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61,
+	0x67, 0x65, 0x4a, 0x6f, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x48, 0x00, 0x52, 0x07, 0x6a, 0x6f, 0x69,
+	0x6e, 0x52, 0x65, 0x71, 0x12, 0x37, 0x0a, 0x09, 0x6a, 0x6f, 0x69, 0x6e, 0x5f, 0x72, 0x65, 0x73,
+	0x70, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73,
+	0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x4a, 0x6f, 0x69, 0x6e, 0x52, 0x65, 0x73,
+	0x70, 0x48, 0x00, 0x52, 0x08, 0x6a, 0x6f, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x12, 0x37, 0x0a,
+	0x09, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x5f, 0x72, 0x65, 0x71, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x18, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61,
+	0x67, 0x65, 0x45, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x48, 0x00, 0x52, 0x08, 0x65, 0x6c,
+	0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x3a, 0x0a, 0x0a, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x5f,
+	0x72, 0x65, 0x73, 0x70, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x66, 0x6f, 0x72,
+	0x6d, 0x6f, 0x73, 0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x45, 0x6c, 0x65, 0x63,
+	0x74, 0x52, 0x65, 0x73, 0x70, 0x48, 0x00, 0x52, 0x09, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65,
+	0x73, 0x70, 0x12, 0x3d, 0x0a, 0x0b, 0x69, 0x6d, 0x70, 0x65, 0x61, 0x63, 0x68, 0x5f, 0x72, 0x65,
+	0x71, 0x18, 0x07, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73,
+	0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6d, 0x70, 0x65, 0x61, 0x63, 0x68,
+	0x52, 0x65, 0x71, 0x48, 0x00, 0x52, 0x0a, 0x69, 0x6d, 0x70, 0x65, 0x61, 0x63, 0x68, 0x52, 0x65,
+	0x71, 0x12, 0x40, 0x0a, 0x0c, 0x69, 0x6d, 0x70, 0x65, 0x61, 0x63, 0x68, 0x5f, 0x72, 0x65, 0x73,
+	0x70, 0x18, 0x08, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x66, 0x6f, 0x72, 0x6d, 0x6f, 0x73,
+	0x61, 0x2e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6d, 0x70, 0x65, 0x61, 0x63, 0x68,
+	0x52, 0x65, 0x73, 0x70, 0x48, 0x00, 0x52, 0x0b, 0x69, 0x6d, 0x70, 0x65, 0x61, 0x63, 0x68, 0x52,
+	0x65, 0x73, 0x70, 0x42, 0x08, 0x0a, 0x06, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x2f, 0x0a,
+	0x0e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65, 0x71, 0x12,
+	0x1d, 0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x03, 0x52, 0x09, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x64, 0x22, 0xbb,
+	0x01, 0x0a, 0x0f, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x65,
+	0x73, 0x70, 0x12, 0x1d, 0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49,
+	0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x65, 0x76, 0x65, 0x6c, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x6c, 0x65, 0x76, 0x65, 0x6c, 0x12, 0x1e, 0x0a, 0x0a, 0x70,
+	0x6f, 0x70, 0x75, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x05, 0x52,
+	0x0a, 0x70, 0x6f, 0x70, 0x75, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x25, 0x0a, 0x0e, 0x6d,
+	0x61, 0x78, 0x5f, 0x70, 0x6f, 0x70, 0x75, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x05, 0x52, 0x0d, 0x6d, 0x61, 0x78, 0x50, 0x6f, 0x70, 0x75, 0x6c, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x12, 0x18, 0x0a, 0x07, 0x68, 0x65, 0x61, 0x64, 0x6d, 0x61, 0x6e, 0x18, 0x06, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x07, 0x68, 0x65, 0x61, 0x64, 0x6d, 0x61, 0x6e, 0x22, 0x2f, 0x0a, 0x0e,
+	0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x4a, 0x6f, 0x69, 0x6e, 0x52, 0x65, 0x71, 0x12, 0x1d,
+	0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x03, 0x52, 0x09, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x64, 0x22, 0x45, 0x0a,
+	0x0f, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x4a, 0x6f, 0x69, 0x6e, 0x52, 0x65, 0x73, 0x70,
+	0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73,
+	0x73, 0x61, 0x67, 0x65, 0x22, 0x57, 0x0a, 0x0f, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x45,
+	0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61,
 	0x67, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x76, 0x69, 0x6c,
-	0x6c, 0x61, 0x67, 0x65, 0x49, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x65,
-	0x76, 0x65, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x6c, 0x65, 0x76, 0x65, 0x6c,
-	0x12, 0x1e, 0x0a, 0x0a, 0x70, 0x6f, 0x70, 0x75, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04,
-	0x20, 0x01, 0x28, 0x05, 0x52, 0x0a, 0x70, 0x6f, 0x70, 0x75, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x12, 0x25, 0x0a, 0x0e, 0x6d, 0x61, 0x78, 0x5f, 0x70, 0x6f, 0x70, 0x75, 0x6c, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x18, 0x05, 0x20, 0x01, 0x28, 0x05, 0x52, 0x0d, 0x6d, 0x61, 0x78, 0x50, 0x6f, 0x70,
-	0x75, 0x6c, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x18, 0x0a, 0x07, 0x68, 0x65, 0x61, 0x64, 0x6d,
-	0x61, 0x6e, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x68, 0x65, 0x61, 0x64, 0x6d, 0x61,
-	0x6e, 0x22, 0x2f, 0x0a, 0x0e, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x4a, 0x6f, 0x69, 0x6e,
-	0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f, 0x69,
-	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65,
-	0x49, 0x64, 0x22, 0x45, 0x0a, 0x0f, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x4a, 0x6f, 0x69,
-	0x6e, 0x52, 0x65, 0x73, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
-	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12,
-	0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x57, 0x0a, 0x0f, 0x56, 0x69, 0x6c,
-	0x6c, 0x61, 0x67, 0x65, 0x45, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a,
-	0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03,
-	0x52, 0x09, 0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x63,
-	0x61, 0x6e, 0x64, 0x69, 0x64, 0x61, 0x74, 0x65, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x0d, 0x63, 0x61, 0x6e, 0x64, 0x69, 0x64, 0x61, 0x74, 0x65, 0x4e, 0x61,
-	0x6d, 0x65, 0x22, 0x46, 0x0a, 0x10, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x45, 0x6c, 0x65,
-	0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73,
+	0x6c, 0x61, 0x67, 0x65, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x63, 0x61, 0x6e, 0x64, 0x69, 0x64,
+	0x61, 0x74, 0x65, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0d,
+	0x63, 0x61, 0x6e, 0x64, 0x69, 0x64, 0x61, 0x74, 0x65, 0x4e, 0x61, 0x6d, 0x65, 0x22, 0x46, 0x0a,
+	0x10, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x45, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x12, 0x18, 0x0a, 0x07, 0x6d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x59, 0x0a, 0x11, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65,
+	0x49, 0x6d, 0x70, 0x65, 0x61, 0x63, 0x68, 0x52, 0x65, 0x71, 0x12, 0x1d, 0x0a, 0x0a, 0x76, 0x69,
+	0x6c, 0x6c, 0x61, 0x67, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09,
+	0x76, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x74, 0x61, 0x72,
+	0x67, 0x65, 0x74, 0x5f, 0x68, 0x65, 0x61, 0x64, 0x6d, 0x61, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0d, 0x74, 0x61, 0x72, 0x67, 0x65, 0x74, 0x48, 0x65, 0x61, 0x64, 0x6d, 0x61, 0x6e,
+	0x22, 0x48, 0x0a, 0x12, 0x56, 0x69, 0x6c, 0x6c, 0x61, 0x67, 0x65, 0x49, 0x6d, 0x70, 0x65, 0x61,
+	0x63, 0x68, 0x52, 0x65, 0x73, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73,
 	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73,
 	0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
 	0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0xc0, 0x03, 0x0a, 0x0e, 0x44,
@@ -3256,8 +3814,15 @@ var file_message_proto_rawDesc = []byte{
 	0x4e, 0x45, 0x4c, 0x5f, 0x46, 0x41, 0x43, 0x54, 0x49, 0x4f, 0x4e, 0x10, 0x02, 0x12, 0x12, 0x0a,
 	0x0e, 0x43, 0x48, 0x41, 0x4e, 0x4e, 0x45, 0x4c, 0x5f, 0x47, 0x4c, 0x4f, 0x42, 0x41, 0x4c, 0x10,
 	0x03, 0x12, 0x13, 0x0a, 0x0f, 0x43, 0x48, 0x41, 0x4e, 0x4e, 0x45, 0x4c, 0x5f, 0x50, 0x52, 0x49,
-	0x56, 0x41, 0x54, 0x45, 0x10, 0x04, 0x42, 0x0d, 0x5a, 0x0b, 0x2e, 0x2f, 0x3b, 0x72, 0x65, 0x73,
-	0x6f, 0x75, 0x72, 0x63, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x56, 0x41, 0x54, 0x45, 0x10, 0x04, 0x2a, 0x65, 0x0a, 0x0d, 0x44, 0x69, 0x70, 0x6c, 0x6f, 0x6d,
+	0x61, 0x63, 0x79, 0x54, 0x79, 0x70, 0x65, 0x12, 0x12, 0x0a, 0x0e, 0x44, 0x49, 0x50, 0x4c, 0x4f,
+	0x5f, 0x41, 0x4c, 0x4c, 0x49, 0x41, 0x4e, 0x43, 0x45, 0x10, 0x00, 0x12, 0x12, 0x0a, 0x0e, 0x44,
+	0x49, 0x50, 0x4c, 0x4f, 0x5f, 0x4d, 0x41, 0x52, 0x52, 0x49, 0x41, 0x47, 0x45, 0x10, 0x01, 0x12,
+	0x17, 0x0a, 0x13, 0x44, 0x49, 0x50, 0x4c, 0x4f, 0x5f, 0x42, 0x4c, 0x4f, 0x4f, 0x44, 0x5f, 0x42,
+	0x52, 0x4f, 0x54, 0x48, 0x45, 0x52, 0x10, 0x02, 0x12, 0x13, 0x0a, 0x0f, 0x44, 0x49, 0x50, 0x4c,
+	0x4f, 0x5f, 0x52, 0x45, 0x43, 0x4f, 0x4e, 0x43, 0x49, 0x4c, 0x45, 0x10, 0x03, 0x42, 0x0d, 0x5a,
+	0x0b, 0x2e, 0x2f, 0x3b, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -3272,97 +3837,110 @@ func file_message_proto_rawDescGZIP() []byte {
 	return file_message_proto_rawDescData
 }
 
-var file_message_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
+var file_message_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_message_proto_msgTypes = make([]protoimpl.MessageInfo, 46)
 var file_message_proto_goTypes = []interface{}{
 	(SystemCodes)(0),               // 0: formosa.SystemCodes
 	(ChatChannelType)(0),           // 1: formosa.ChatChannelType
-	(*Packet)(nil),                 // 2: formosa.Packet
-	(*TransferEncrypted)(nil),      // 3: formosa.TransferEncrypted
-	(*KeyExchangeRequest)(nil),     // 4: formosa.KeyExchangeRequest
-	(*KeyExchangeResponse)(nil),    // 5: formosa.KeyExchangeResponse
-	(*ResumeSessionRequest)(nil),   // 6: formosa.ResumeSessionRequest
-	(*ResumeSessionResponse)(nil),  // 7: formosa.ResumeSessionResponse
-	(*Header)(nil),                 // 8: formosa.Header
-	(*Heartbeat)(nil),              // 9: formosa.Heartbeat
-	(*Envelope)(nil),               // 10: formosa.Envelope
-	(*Login)(nil),                  // 11: formosa.Login
-	(*LoginResponse)(nil),          // 12: formosa.LoginResponse
-	(*Register)(nil),               // 13: formosa.Register
-	(*ChatMessage)(nil),            // 14: formosa.ChatMessage
-	(*IntelHint)(nil),              // 15: formosa.IntelHint
-	(*VillageAction)(nil),          // 16: formosa.VillageAction
-	(*VillageInfoReq)(nil),         // 17: formosa.VillageInfoReq
-	(*VillageInfoResp)(nil),        // 18: formosa.VillageInfoResp
-	(*VillageJoinReq)(nil),         // 19: formosa.VillageJoinReq
-	(*VillageJoinResp)(nil),        // 20: formosa.VillageJoinResp
-	(*VillageElectReq)(nil),        // 21: formosa.VillageElectReq
-	(*VillageElectResp)(nil),       // 22: formosa.VillageElectResp
-	(*DisasterAction)(nil),         // 23: formosa.DisasterAction
-	(*EarthquakeNotify)(nil),       // 24: formosa.EarthquakeNotify
-	(*TyphoonNotify)(nil),          // 25: formosa.TyphoonNotify
-	(*DisasterWarning)(nil),        // 26: formosa.DisasterWarning
-	(*ReliefGameStart)(nil),        // 27: formosa.ReliefGameStart
-	(*ReliefDonateReq)(nil),        // 28: formosa.ReliefDonateReq
-	(*ReliefRouteSubmit)(nil),      // 29: formosa.ReliefRouteSubmit
-	(*ReliefResult)(nil),           // 30: formosa.ReliefResult
-	(*BattleAction)(nil),           // 31: formosa.BattleAction
-	(*BattleStartNotify)(nil),      // 32: formosa.BattleStartNotify
-	(*BattleDeployReq)(nil),        // 33: formosa.BattleDeployReq
-	(*BattleResultNotify)(nil),     // 34: formosa.BattleResultNotify
-	(*AOIUpdate)(nil),              // 35: formosa.AOIUpdate
-	(*MapSync)(nil),                // 36: formosa.MapSync
-	(*ClientMoveReq)(nil),          // 37: formosa.ClientMoveReq
-	(*AOIBroadcast)(nil),           // 38: formosa.AOIBroadcast
-	(*AOIUpdate_EntityData)(nil),   // 39: formosa.AOIUpdate.EntityData
-	(*AOIBroadcast_EntityPos)(nil), // 40: formosa.AOIBroadcast.EntityPos
+	(DiplomacyType)(0),             // 2: formosa.DiplomacyType
+	(*Packet)(nil),                 // 3: formosa.Packet
+	(*TransferEncrypted)(nil),      // 4: formosa.TransferEncrypted
+	(*KeyExchangeRequest)(nil),     // 5: formosa.KeyExchangeRequest
+	(*KeyExchangeResponse)(nil),    // 6: formosa.KeyExchangeResponse
+	(*ResumeSessionRequest)(nil),   // 7: formosa.ResumeSessionRequest
+	(*ResumeSessionResponse)(nil),  // 8: formosa.ResumeSessionResponse
+	(*Header)(nil),                 // 9: formosa.Header
+	(*Heartbeat)(nil),              // 10: formosa.Heartbeat
+	(*Envelope)(nil),               // 11: formosa.Envelope
+	(*Login)(nil),                  // 12: formosa.Login
+	(*LoginResponse)(nil),          // 13: formosa.LoginResponse
+	(*Register)(nil),               // 14: formosa.Register
+	(*ChatMessage)(nil),            // 15: formosa.ChatMessage
+	(*IntelHint)(nil),              // 16: formosa.IntelHint
+	(*TensionUpdate)(nil),          // 17: formosa.TensionUpdate
+	(*StaminaUpdate)(nil),          // 18: formosa.StaminaUpdate
+	(*DiplomacyAction)(nil),        // 19: formosa.DiplomacyAction
+	(*DiplomacyReq)(nil),           // 20: formosa.DiplomacyReq
+	(*DiplomacyResp)(nil),          // 21: formosa.DiplomacyResp
+	(*VillageAction)(nil),          // 22: formosa.VillageAction
+	(*VillageInfoReq)(nil),         // 23: formosa.VillageInfoReq
+	(*VillageInfoResp)(nil),        // 24: formosa.VillageInfoResp
+	(*VillageJoinReq)(nil),         // 25: formosa.VillageJoinReq
+	(*VillageJoinResp)(nil),        // 26: formosa.VillageJoinResp
+	(*VillageElectReq)(nil),        // 27: formosa.VillageElectReq
+	(*VillageElectResp)(nil),       // 28: formosa.VillageElectResp
+	(*VillageImpeachReq)(nil),      // 29: formosa.VillageImpeachReq
+	(*VillageImpeachResp)(nil),     // 30: formosa.VillageImpeachResp
+	(*DisasterAction)(nil),         // 31: formosa.DisasterAction
+	(*EarthquakeNotify)(nil),       // 32: formosa.EarthquakeNotify
+	(*TyphoonNotify)(nil),          // 33: formosa.TyphoonNotify
+	(*DisasterWarning)(nil),        // 34: formosa.DisasterWarning
+	(*ReliefGameStart)(nil),        // 35: formosa.ReliefGameStart
+	(*ReliefDonateReq)(nil),        // 36: formosa.ReliefDonateReq
+	(*ReliefRouteSubmit)(nil),      // 37: formosa.ReliefRouteSubmit
+	(*ReliefResult)(nil),           // 38: formosa.ReliefResult
+	(*BattleAction)(nil),           // 39: formosa.BattleAction
+	(*BattleStartNotify)(nil),      // 40: formosa.BattleStartNotify
+	(*BattleDeployReq)(nil),        // 41: formosa.BattleDeployReq
+	(*BattleResultNotify)(nil),     // 42: formosa.BattleResultNotify
+	(*AOIUpdate)(nil),              // 43: formosa.AOIUpdate
+	(*MapSync)(nil),                // 44: formosa.MapSync
+	(*ClientMoveReq)(nil),          // 45: formosa.ClientMoveReq
+	(*AOIBroadcast)(nil),           // 46: formosa.AOIBroadcast
+	(*AOIUpdate_EntityData)(nil),   // 47: formosa.AOIUpdate.EntityData
+	(*AOIBroadcast_EntityPos)(nil), // 48: formosa.AOIBroadcast.EntityPos
 }
 var file_message_proto_depIdxs = []int32{
-	4,  // 0: formosa.Packet.key_exchange_req:type_name -> formosa.KeyExchangeRequest
-	5,  // 1: formosa.Packet.key_exchange_resp:type_name -> formosa.KeyExchangeResponse
-	6,  // 2: formosa.Packet.resume_req:type_name -> formosa.ResumeSessionRequest
-	7,  // 3: formosa.Packet.resume_resp:type_name -> formosa.ResumeSessionResponse
-	3,  // 4: formosa.Packet.encrypted:type_name -> formosa.TransferEncrypted
+	5,  // 0: formosa.Packet.key_exchange_req:type_name -> formosa.KeyExchangeRequest
+	6,  // 1: formosa.Packet.key_exchange_resp:type_name -> formosa.KeyExchangeResponse
+	7,  // 2: formosa.Packet.resume_req:type_name -> formosa.ResumeSessionRequest
+	8,  // 3: formosa.Packet.resume_resp:type_name -> formosa.ResumeSessionResponse
+	4,  // 4: formosa.Packet.encrypted:type_name -> formosa.TransferEncrypted
 	0,  // 5: formosa.TransferEncrypted.codes:type_name -> formosa.SystemCodes
-	8,  // 6: formosa.Envelope.header:type_name -> formosa.Header
-	11, // 7: formosa.Envelope.login:type_name -> formosa.Login
-	12, // 8: formosa.Envelope.login_response:type_name -> formosa.LoginResponse
-	13, // 9: formosa.Envelope.register:type_name -> formosa.Register
-	9,  // 10: formosa.Envelope.ping:type_name -> formosa.Heartbeat
-	9,  // 11: formosa.Envelope.pong:type_name -> formosa.Heartbeat
-	14, // 12: formosa.Envelope.chat:type_name -> formosa.ChatMessage
-	15, // 13: formosa.Envelope.intel_hint:type_name -> formosa.IntelHint
-	16, // 14: formosa.Envelope.village:type_name -> formosa.VillageAction
-	23, // 15: formosa.Envelope.disaster:type_name -> formosa.DisasterAction
-	31, // 16: formosa.Envelope.battle:type_name -> formosa.BattleAction
-	35, // 17: formosa.Envelope.aoi_update:type_name -> formosa.AOIUpdate
-	36, // 18: formosa.Envelope.map_sync:type_name -> formosa.MapSync
-	37, // 19: formosa.Envelope.move_req:type_name -> formosa.ClientMoveReq
-	38, // 20: formosa.Envelope.aoi_broadcast:type_name -> formosa.AOIBroadcast
+	9,  // 6: formosa.Envelope.header:type_name -> formosa.Header
+	12, // 7: formosa.Envelope.login:type_name -> formosa.Login
+	13, // 8: formosa.Envelope.login_response:type_name -> formosa.LoginResponse
+	14, // 9: formosa.Envelope.register:type_name -> formosa.Register
+	10, // 10: formosa.Envelope.ping:type_name -> formosa.Heartbeat
+	10, // 11: formosa.Envelope.pong:type_name -> formosa.Heartbeat
+	15, // 12: formosa.Envelope.chat:type_name -> formosa.ChatMessage
+	16, // 13: formosa.Envelope.intel_hint:type_name -> formosa.IntelHint
+	22, // 14: formosa.Envelope.village:type_name -> formosa.VillageAction
+	31, // 15: formosa.Envelope.disaster:type_name -> formosa.DisasterAction
+	39, // 16: formosa.Envelope.battle:type_name -> formosa.BattleAction
+	43, // 17: formosa.Envelope.aoi_update:type_name -> formosa.AOIUpdate
+	44, // 18: formosa.Envelope.map_sync:type_name -> formosa.MapSync
+	45, // 19: formosa.Envelope.move_req:type_name -> formosa.ClientMoveReq
+	46, // 20: formosa.Envelope.aoi_broadcast:type_name -> formosa.AOIBroadcast
 	1,  // 21: formosa.ChatMessage.channel:type_name -> formosa.ChatChannelType
-	17, // 22: formosa.VillageAction.info_req:type_name -> formosa.VillageInfoReq
-	18, // 23: formosa.VillageAction.info_resp:type_name -> formosa.VillageInfoResp
-	19, // 24: formosa.VillageAction.join_req:type_name -> formosa.VillageJoinReq
-	20, // 25: formosa.VillageAction.join_resp:type_name -> formosa.VillageJoinResp
-	21, // 26: formosa.VillageAction.elect_req:type_name -> formosa.VillageElectReq
-	22, // 27: formosa.VillageAction.elect_resp:type_name -> formosa.VillageElectResp
-	24, // 28: formosa.DisasterAction.earthquake:type_name -> formosa.EarthquakeNotify
-	25, // 29: formosa.DisasterAction.typhoon:type_name -> formosa.TyphoonNotify
-	26, // 30: formosa.DisasterAction.warning:type_name -> formosa.DisasterWarning
-	27, // 31: formosa.DisasterAction.relief_start:type_name -> formosa.ReliefGameStart
-	28, // 32: formosa.DisasterAction.relief_donate:type_name -> formosa.ReliefDonateReq
-	29, // 33: formosa.DisasterAction.relief_route:type_name -> formosa.ReliefRouteSubmit
-	30, // 34: formosa.DisasterAction.relief_result:type_name -> formosa.ReliefResult
-	32, // 35: formosa.BattleAction.start:type_name -> formosa.BattleStartNotify
-	33, // 36: formosa.BattleAction.deploy:type_name -> formosa.BattleDeployReq
-	34, // 37: formosa.BattleAction.result:type_name -> formosa.BattleResultNotify
-	39, // 38: formosa.AOIUpdate.enters:type_name -> formosa.AOIUpdate.EntityData
-	40, // 39: formosa.AOIBroadcast.entities:type_name -> formosa.AOIBroadcast.EntityPos
-	40, // [40:40] is the sub-list for method output_type
-	40, // [40:40] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	20, // 22: formosa.DiplomacyAction.req:type_name -> formosa.DiplomacyReq
+	21, // 23: formosa.DiplomacyAction.resp:type_name -> formosa.DiplomacyResp
+	2,  // 24: formosa.DiplomacyReq.type:type_name -> formosa.DiplomacyType
+	23, // 25: formosa.VillageAction.info_req:type_name -> formosa.VillageInfoReq
+	24, // 26: formosa.VillageAction.info_resp:type_name -> formosa.VillageInfoResp
+	25, // 27: formosa.VillageAction.join_req:type_name -> formosa.VillageJoinReq
+	26, // 28: formosa.VillageAction.join_resp:type_name -> formosa.VillageJoinResp
+	27, // 29: formosa.VillageAction.elect_req:type_name -> formosa.VillageElectReq
+	28, // 30: formosa.VillageAction.elect_resp:type_name -> formosa.VillageElectResp
+	29, // 31: formosa.VillageAction.impeach_req:type_name -> formosa.VillageImpeachReq
+	30, // 32: formosa.VillageAction.impeach_resp:type_name -> formosa.VillageImpeachResp
+	32, // 33: formosa.DisasterAction.earthquake:type_name -> formosa.EarthquakeNotify
+	33, // 34: formosa.DisasterAction.typhoon:type_name -> formosa.TyphoonNotify
+	34, // 35: formosa.DisasterAction.warning:type_name -> formosa.DisasterWarning
+	35, // 36: formosa.DisasterAction.relief_start:type_name -> formosa.ReliefGameStart
+	36, // 37: formosa.DisasterAction.relief_donate:type_name -> formosa.ReliefDonateReq
+	37, // 38: formosa.DisasterAction.relief_route:type_name -> formosa.ReliefRouteSubmit
+	38, // 39: formosa.DisasterAction.relief_result:type_name -> formosa.ReliefResult
+	40, // 40: formosa.BattleAction.start:type_name -> formosa.BattleStartNotify
+	41, // 41: formosa.BattleAction.deploy:type_name -> formosa.BattleDeployReq
+	42, // 42: formosa.BattleAction.result:type_name -> formosa.BattleResultNotify
+	47, // 43: formosa.AOIUpdate.enters:type_name -> formosa.AOIUpdate.EntityData
+	48, // 44: formosa.AOIBroadcast.entities:type_name -> formosa.AOIBroadcast.EntityPos
+	45, // [45:45] is the sub-list for method output_type
+	45, // [45:45] is the sub-list for method input_type
+	45, // [45:45] is the sub-list for extension type_name
+	45, // [45:45] is the sub-list for extension extendee
+	0,  // [0:45] is the sub-list for field type_name
 }
 
 func init() { file_message_proto_init() }
@@ -3540,7 +4118,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VillageAction); i {
+			switch v := v.(*TensionUpdate); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3552,7 +4130,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VillageInfoReq); i {
+			switch v := v.(*StaminaUpdate); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3564,7 +4142,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VillageInfoResp); i {
+			switch v := v.(*DiplomacyAction); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3576,7 +4154,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VillageJoinReq); i {
+			switch v := v.(*DiplomacyReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3588,7 +4166,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VillageJoinResp); i {
+			switch v := v.(*DiplomacyResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3600,7 +4178,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VillageElectReq); i {
+			switch v := v.(*VillageAction); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3612,7 +4190,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VillageElectResp); i {
+			switch v := v.(*VillageInfoReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3624,7 +4202,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DisasterAction); i {
+			switch v := v.(*VillageInfoResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3636,7 +4214,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*EarthquakeNotify); i {
+			switch v := v.(*VillageJoinReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3648,7 +4226,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TyphoonNotify); i {
+			switch v := v.(*VillageJoinResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3660,7 +4238,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*DisasterWarning); i {
+			switch v := v.(*VillageElectReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3672,7 +4250,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReliefGameStart); i {
+			switch v := v.(*VillageElectResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3684,7 +4262,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReliefDonateReq); i {
+			switch v := v.(*VillageImpeachReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3696,7 +4274,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReliefRouteSubmit); i {
+			switch v := v.(*VillageImpeachResp); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3708,7 +4286,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReliefResult); i {
+			switch v := v.(*DisasterAction); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3720,7 +4298,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BattleAction); i {
+			switch v := v.(*EarthquakeNotify); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3732,7 +4310,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BattleStartNotify); i {
+			switch v := v.(*TyphoonNotify); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3744,7 +4322,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BattleDeployReq); i {
+			switch v := v.(*DisasterWarning); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3756,7 +4334,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*BattleResultNotify); i {
+			switch v := v.(*ReliefGameStart); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3768,7 +4346,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AOIUpdate); i {
+			switch v := v.(*ReliefDonateReq); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3780,7 +4358,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MapSync); i {
+			switch v := v.(*ReliefRouteSubmit); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3792,7 +4370,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ClientMoveReq); i {
+			switch v := v.(*ReliefResult); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3804,7 +4382,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AOIBroadcast); i {
+			switch v := v.(*BattleAction); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3816,7 +4394,7 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*AOIUpdate_EntityData); i {
+			switch v := v.(*BattleStartNotify); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -3828,6 +4406,90 @@ func file_message_proto_init() {
 			}
 		}
 		file_message_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BattleDeployReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*BattleResultNotify); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AOIUpdate); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MapSync); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ClientMoveReq); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AOIBroadcast); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*AOIUpdate_EntityData); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_message_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*AOIBroadcast_EntityPos); i {
 			case 0:
 				return &v.state
@@ -3863,15 +4525,21 @@ func file_message_proto_init() {
 		(*Envelope_MoveReq)(nil),
 		(*Envelope_AoiBroadcast)(nil),
 	}
-	file_message_proto_msgTypes[14].OneofWrappers = []interface{}{
+	file_message_proto_msgTypes[16].OneofWrappers = []interface{}{
+		(*DiplomacyAction_Req)(nil),
+		(*DiplomacyAction_Resp)(nil),
+	}
+	file_message_proto_msgTypes[19].OneofWrappers = []interface{}{
 		(*VillageAction_InfoReq)(nil),
 		(*VillageAction_InfoResp)(nil),
 		(*VillageAction_JoinReq)(nil),
 		(*VillageAction_JoinResp)(nil),
 		(*VillageAction_ElectReq)(nil),
 		(*VillageAction_ElectResp)(nil),
+		(*VillageAction_ImpeachReq)(nil),
+		(*VillageAction_ImpeachResp)(nil),
 	}
-	file_message_proto_msgTypes[21].OneofWrappers = []interface{}{
+	file_message_proto_msgTypes[28].OneofWrappers = []interface{}{
 		(*DisasterAction_Earthquake)(nil),
 		(*DisasterAction_Typhoon)(nil),
 		(*DisasterAction_Warning)(nil),
@@ -3880,7 +4548,7 @@ func file_message_proto_init() {
 		(*DisasterAction_ReliefRoute)(nil),
 		(*DisasterAction_ReliefResult)(nil),
 	}
-	file_message_proto_msgTypes[29].OneofWrappers = []interface{}{
+	file_message_proto_msgTypes[36].OneofWrappers = []interface{}{
 		(*BattleAction_Start)(nil),
 		(*BattleAction_Deploy)(nil),
 		(*BattleAction_Result)(nil),
@@ -3890,8 +4558,8 @@ func file_message_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_message_proto_rawDesc,
-			NumEnums:      2,
-			NumMessages:   39,
+			NumEnums:      3,
+			NumMessages:   46,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

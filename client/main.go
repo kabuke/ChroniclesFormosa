@@ -47,6 +47,14 @@ func (g *Game) Update() error {
 	ui.GlobalToastManager.Update()
 	ui.GlobalKeyboard.Update()
 
+	// 社交系統 UI 更新 (僅在大地圖)
+	if g.sceneManager.CurrentName() == "Map" {
+		ui.GlobalChatPanel.Visible = true
+		ui.GlobalChatPanel.Update()
+	} else {
+		ui.GlobalChatPanel.Visible = false
+	}
+
 	if current := g.sceneManager.Current(); current != nil {
 		if err := current.Update(); err != nil {
 			return err
@@ -62,6 +70,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	ui.GlobalNavbar.Draw(screen)
 	ui.GlobalToastManager.Draw(screen)
+	ui.GlobalChatPanel.Draw(screen)
 	ui.GlobalKeyboard.Draw(screen)
 }
 
@@ -97,7 +106,26 @@ func main() {
 		sceneManager:  sm,
 	}
 
+	// 設定聊天傳送回調
+	ui.OnChatSubmit = func(ch pb.ChatChannelType, content string) {
+		netClient.SendEnvelope(&pb.Envelope{
+			Payload: &pb.Envelope_Chat{
+				Chat: &pb.ChatMessage{
+					Channel: ch,
+					Content: content,
+				},
+			},
+		})
+	}
+
 	netClient.OnEnvelopeReceived = func(env *pb.Envelope) {
+		// 1. 聊天訊息優先攔截
+		if chat := env.GetChat(); chat != nil {
+			ui.GlobalChatPanel.AddMessage(chat)
+			return
+		}
+
+		// 2. 其他業務回應
 		if resp := env.GetLoginResponse(); resp != nil {
 			if resp.Success {
 				ui.GlobalToastManager.Success(resp.Message)

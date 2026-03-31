@@ -252,6 +252,13 @@ func (m *SessionManager) GetSessionByUsername(username string) *UserSession {
 	return <-resp
 }
 
+// GetAllSessions 返回當前所有活動 Session 的快照
+func (m *SessionManager) GetAllSessions() []*UserSession {
+	req := make(chan []*UserSession, 1)
+	m.allSessionsCh <- req
+	return <-req
+}
+
 // AddToForwardQueue 新增到轉發隊列，供廣播與聊天使用 (現在直接寫入 Channel)
 func (m *SessionManager) AddToForwardQueue(env *pb.Envelope) {
 	m.forwardCh <- env

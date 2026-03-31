@@ -150,10 +150,53 @@ message ChatMessage {
     int64 timestamp = 4;
     ChatChannelType channel = 5;
 }
-
 message IntelHint {
     string hint_text = 1;
     string direction = 2;
+}
+
+message TensionUpdate {
+    int64 village_id = 1;
+    int32 tension_value = 2;
+    string visual_level = 3;  // PEACE, UNEASY, TENSE, RIOT
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：玩家狀態
+// ═══════════════════════════════════════
+
+message StaminaUpdate {
+    int32 current = 1;
+    int32 max = 2;
+}
+
+// ═══════════════════════════════════════
+// 業務訊息：外交系統
+// ═══════════════════════════════════════
+
+enum DiplomacyType {
+    DIPLO_ALLIANCE = 0;     // 結盟
+    DIPLO_MARRIAGE = 1;     // 聯姻
+    DIPLO_BLOOD_BROTHER = 2; // 拜把
+    DIPLO_RECONCILE = 3;    // 理番/和談
+}
+
+message DiplomacyAction {
+    oneof action {
+        DiplomacyReq req = 1;
+        DiplomacyResp resp = 2;
+    }
+}
+
+message DiplomacyReq {
+    DiplomacyType type = 1;
+    int64 target_village_id = 2;
+    int64 target_player_id = 3;
+}
+
+message DiplomacyResp {
+    bool success = 1;
+    string result_desc = 2;
 }
 
 // ═══════════════════════════════════════
@@ -168,6 +211,8 @@ message VillageAction {
         VillageJoinResp join_resp = 4;
         VillageElectReq elect_req = 5;
         VillageElectResp elect_resp = 6;
+        VillageImpeachReq impeach_req = 7;
+        VillageImpeachResp impeach_resp = 8;
     }
 }
 
@@ -199,6 +244,16 @@ message VillageElectReq {
 }
 
 message VillageElectResp {
+    bool success = 1;
+    string message = 2;
+}
+
+message VillageImpeachReq {
+    int64 village_id = 1;
+    string target_headman = 2;
+}
+
+message VillageImpeachResp {
     bool success = 1;
     string message = 2;
 }
