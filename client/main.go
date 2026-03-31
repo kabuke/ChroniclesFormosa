@@ -47,10 +47,11 @@ func (g *Game) Update() error {
 	ui.GlobalToastManager.Update()
 	ui.GlobalKeyboard.Update()
 
-	// 社交系統 UI 更新 (僅在大地圖)
+	// 社會系統 UI 更新 (僅在大地圖)
 	if g.sceneManager.CurrentName() == "Map" {
 		ui.GlobalChatPanel.Visible = true
 		ui.GlobalChatPanel.Update()
+		ui.GlobalTensionMeter.Update()
 	} else {
 		ui.GlobalChatPanel.Visible = false
 	}
@@ -71,6 +72,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	ui.GlobalNavbar.Draw(screen)
 	ui.GlobalToastManager.Draw(screen)
 	ui.GlobalChatPanel.Draw(screen)
+	ui.GlobalTensionMeter.Draw(screen)
 	ui.GlobalKeyboard.Draw(screen)
 }
 
@@ -125,7 +127,13 @@ func main() {
 			return
 		}
 
-		// 2. 其他業務回應
+		// 2. 社會系統更新
+		if tension := env.GetTension(); tension != nil {
+			ui.GlobalTensionMeter.Set(tension.TensionValue, tension.VisualLevel)
+			return
+		}
+
+		// 3. 其他業務回應
 		if resp := env.GetLoginResponse(); resp != nil {
 			if resp.Success {
 				ui.GlobalToastManager.Success(resp.Message)

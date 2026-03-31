@@ -91,9 +91,16 @@ message Envelope {
         // 聊天
         ChatMessage chat = 20;
         IntelHint intel_hint = 21;
+        TensionUpdate tension = 22;
 
         // 庄頭
         VillageAction village = 30;
+
+        // 玩家狀態
+        StaminaUpdate stamina = 35;
+
+        // 外交
+        DiplomacyAction diplomacy = 36;
 
         // 天災
         DisasterAction disaster = 40;
