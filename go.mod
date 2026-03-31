@@ -6,6 +6,7 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
 	github.com/xtaci/kcp-go/v5 v5.6.71
+	golang.org/x/image v0.31.0
 	google.golang.org/protobuf v1.36.11
 	gorm.io/gorm v1.31.1
 )

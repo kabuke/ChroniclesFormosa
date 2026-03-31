@@ -32,3 +32,6 @@ Thumbs.db
 
 # Dependency
 /vendor/
+client_bin
+server_bin
+srv.log

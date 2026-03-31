@@ -1,0 +1,10 @@
+{
+  "LOGIN_TITLE": "登入台灣三國誌",
+  "ACCOUNT": "帳號",
+  "PASSWORD": "密碼",
+  "LOGIN_BTN": "登入",
+  "STATUS_ONLINE": "連線成功",
+  "STATUS_OFFLINE": "斷開連線",
+  "STATUS_CONNECTING": "正在連線...",
+  "VERIFYING": "正在驗證身份..."
+}

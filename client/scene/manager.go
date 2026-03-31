@@ -44,3 +44,8 @@ func (sm *SceneManager) SwitchTo(name string) {
 func (sm *SceneManager) Current() Scene {
 	return sm.scenes[sm.current]
 }
+
+// CurrentName 獲取當前場景的名稱
+func (sm *SceneManager) CurrentName() string {
+	return sm.current
+}

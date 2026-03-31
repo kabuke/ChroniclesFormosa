@@ -8,6 +8,7 @@
 
 | 版本 | 日期       | 變更描述 |
 | :--- | :---       | :---     |
+| 1.2  | 2026-03-31 | 完成 UI 組件、i18n、資源遷移、大地圖渲染及整合測試。 |
 | 1.1  | 2026-03-30 | 借鑑 DiceTower，更新為三層封包+ECDH+Seq/Ack 架構。 |
 | 1.0  | 2026-03-30 | 初版建立。 |
 
@@ -37,7 +38,7 @@
   - [x] 2.1.8 定義 `VillageAction` + 子訊息 (`VillageInfoReq/Resp`, `VillageJoinReq/Resp`)
   - [x] 2.1.9 定義 `AOIUpdate` / `MapSync`（基礎 AOI 同步）
 - [x] 2.2 建立 `proto/gen_proto.sh` 腳本（借鑑 DiceTower 的跨平台腳本）
-- [ ] 2.3 執行腳本，確認 `resource/message.pb.go` 正確生成
+- [x] 2.3 執行腳本，確認 `resource/message.pb.go` 正確生成
 
 ---
 
@@ -117,23 +118,23 @@
 - [x] 4.2.3 `client/scene/map_scene.go`：大地圖場景（Chunk 載入）
 
 ### 4.3 大地圖渲染
-- [ ] 4.3.1 Chunk 資料結構定義（5×5 = 25 Chunks）
-- [ ] 4.3.2 視野中心 3×3 Chunk 載入邏輯
-- [ ] 4.3.3 Camera 控制（拖曳平移、滾輪縮放）
-- [ ] 4.3.4 Tile 渲染（地形瓦片繪製）
-- [ ] 4.3.5 離屏緩衝 (Offscreen Buffer) 優化
+- [x] 4.3.1 Chunk 資料結構定義（5×5 = 25 Chunks）
+- [x] 4.3.2 視野中心 3×3 Chunk 載入邏輯
+- [x] 4.3.3 Camera 控制（拖曳平移、滾輪縮放）
+- [x] 4.3.4 Tile 渲染（地形瓦片繪製）
+- [x] 4.3.5 離屏緩衝 (Offscreen Buffer) 優化
 
 ### 4.4 UI 組件
-- [ ] 4.4.1 `client/ui/rounded_rect.go`：DrawFilledRoundedRect
-- [ ] 4.4.2 `client/ui/theme.go`：GlobalThemeManager（日/夜模式 + 陣營配色）
-- [ ] 4.4.3 `client/ui/navbar.go`：GlobalNavbar（連線狀態、場景標題）
-- [ ] 4.4.4 `client/ui/toast.go`：GlobalToastManager（成功/錯誤/警告）
-- [ ] 4.4.5 `client/ui/keyboard.go`：GuiKeyboard（登入用）
-- [ ] 4.4.6 `client/ui/form.go`：BuildGenericForm（登入表單）
+- [x] 4.4.1 `client/ui/rounded_rect.go`：DrawFilledRoundedRect
+- [x] 4.4.2 `client/ui/theme.go`：GlobalThemeManager（日/夜模式 + 陣營配色）
+- [x] 4.4.3 `client/ui/navbar.go`：GlobalNavbar（連線狀態、場景標題）
+- [x] 4.4.4 `client/ui/toast.go`：GlobalToastManager（成功/錯誤/警告）
+- [x] 4.4.5 `client/ui/keyboard.go`：GuiKeyboard（登入用）
+- [x] 4.4.6 `client/ui/form.go`：BuildGenericForm（登入表單）
 
 ### 4.5 i18n
-- [ ] 4.5.1 `client/i18n/manager.go`：LanguageManager 核心
-- [ ] 4.5.2 `client/i18n/zh_TW.json`：繁體中文翻譯（登入、系統訊息）
+- [x] 4.5.1 `client/i18n/manager.go`：LanguageManager 核心
+- [x] 4.5.2 `client/i18n/zh_TW.json`：繁體中文翻譯（登入、系統訊息）
 
 ### 4.6 客戶端進入點
 - [x] 4.6.1 `client/main.go`：Ebiten Game Loop 啟動
@@ -143,36 +144,36 @@
 
 ## 五、資源檔案
 
-- [ ] 5.1 準備基礎地形瓦片素材（草地、山林、水域、城鎮）
-- [ ] 5.2 準備宣紙底紋 UI 素材
-- [ ] 5.3 準備基礎字體檔（支援繁中的明體/書法體）
+- [x] 5.1 準備基礎地形瓦片素材（草地、山林、水域、城鎮）
+- [x] 5.2 準備宣紙底紋 UI 素材
+- [x] 5.3 準備基礎字體檔（支援繁中的明體/書法體）
 
 ---
 
 ## 六、測試
 
-- [ ] 6.1 Logic 層單元測試
-  - [ ] 6.1.1 `village_test.go`：庄頭建立/加入邏輯
-  - [ ] 6.1.2 `economy_test.go`：資源計算
-- [ ] 6.2 Handler 整合測試
-  - [ ] 6.2.1 登入流程端對端測試
-  - [ ] 6.2.2 庄頭加入流程測試
-- [ ] 6.3 Client-Server 連線測試
-  - [ ] 6.3.1 KCP 握手成功
-  - [ ] 6.3.2 心跳與斷線重連
+- [x] 6.1 Logic 層單元測試
+  - [x] 6.1.1 `village_test.go`：庄頭建立/加入邏輯
+  - [x] 6.1.2 `economy_test.go`：資源計算
+- [x] 6.2 Handler 整合測試
+  - [x] 6.2.1 登入流程端對端測試
+  - [x] 6.2.2 庄頭加入流程測試
+- [x] 6.3 Client-Server 連線測試
+  - [x] 6.3.1 KCP 握手成功
+  - [x] 6.3.2 心跳與斷線重連
 
 ---
 
 ## 七、驗收 Checklist
 
-- [ ] `go build ./server` 成功
-- [ ] `go build ./client` 成功
-- [ ] 客戶端 → 伺服器 KCP 握手成功
-- [ ] 登入流程完整（帳號/密碼 → 認證通過 → 進入地圖）
-- [ ] 大地圖流暢滾動，Chunk 自動載入
-- [ ] Navbar 顯示延遲 ms
-- [ ] Toast 正常運作
-- [ ] i18n `zh_TW` 文字正確顯示
+- [x] `go build ./server` 成功
+- [x] `go build ./client` 成功
+- [x] 客戶端 → 伺服器 KCP 握手成功
+- [x] 登入流程完整（帳號/密碼 → 認證通過 → 進入地圖）
+- [x] 大地圖流暢滾動，Chunk 自動載入
+- [x] Navbar 顯示延遲 ms
+- [x] Toast 正常運作
+- [x] i18n `zh_TW` 文字正確顯示
 
 ---
 

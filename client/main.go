@@ -4,25 +4,49 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kabuke/ChroniclesFormosa/client/asset"
 	"github.com/kabuke/ChroniclesFormosa/client/config"
+	"github.com/kabuke/ChroniclesFormosa/client/i18n"
 	"github.com/kabuke/ChroniclesFormosa/client/network"
 	"github.com/kabuke/ChroniclesFormosa/client/scene"
+	"github.com/kabuke/ChroniclesFormosa/client/ui"
+	pb "github.com/kabuke/ChroniclesFormosa/resource"
 )
 
-// Game 實作了 ebiten.Game 介面，是整個應用程式生命週期的最高管轄者
+// Game 實作了 ebiten.Game 介面
 type Game struct {
 	networkClient *network.NetworkClient
 	sceneManager  *scene.SceneManager
+	lastState     network.ClientState
 }
 
-// Update 每秒會被 Ebiten 呼叫 60 次 (TPS)
+// Update 每秒會被 Ebiten 呼叫 60 次
 func (g *Game) Update() error {
-	// 【安全排空】這個方法讓所有的網路回呼，都在這裡被消化完成，避免與渲染線程衝突
 	if g.networkClient != nil {
 		g.networkClient.ProcessIncoming()
+		
+		if g.networkClient.State != g.lastState {
+			switch g.networkClient.State {
+			case network.StateConnected:
+				ui.GlobalToastManager.Success(i18n.Global.GetText("STATUS_ONLINE"))
+			case network.StateDisconnected:
+				ui.GlobalToastManager.Error(i18n.Global.GetText("STATUS_OFFLINE"))
+			case network.StateResuming:
+				ui.GlobalToastManager.Warning(i18n.Global.GetText("STATUS_CONNECTING"))
+			}
+			g.lastState = g.networkClient.State
+		}
+
+		ui.GlobalNavbar.SetStatus(
+			g.sceneManager.CurrentName(),
+			g.networkClient.State != network.StateDisconnected,
+			g.networkClient.RTT,
+		)
 	}
 
-	// 委派更新邏輯給當前顯示的畫面
+	ui.GlobalToastManager.Update()
+	ui.GlobalKeyboard.Update()
+
 	if current := g.sceneManager.Current(); current != nil {
 		if err := current.Update(); err != nil {
 			return err
@@ -31,50 +55,71 @@ func (g *Game) Update() error {
 	return nil
 }
 
-// Draw 每秒會被 Ebiten 畫 60 次以呈現畫面
+// Draw 每秒會被 Ebiten 畫 60 次
 func (g *Game) Draw(screen *ebiten.Image) {
 	if current := g.sceneManager.Current(); current != nil {
 		current.Draw(screen)
 	}
+	ui.GlobalNavbar.Draw(screen)
+	ui.GlobalToastManager.Draw(screen)
+	ui.GlobalKeyboard.Draw(screen)
 }
 
-// Layout 這個方法決定了畫面怎麼去適應實際的視窗縮放
-// 回傳的就是在 Ebiten 內的邏輯解析度。
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return config.AppConfig.ScreenWidth, config.AppConfig.ScreenHeight
 }
 
 func main() {
-	// 1. 讀取基礎設定
 	config.LoadConfig()
 
-	// 2. 建立並啟動背景網路引擎
-	log.Println("[Client] Start KCP Network Engine...")
-	netClient := network.NewNetworkClient(config.AppConfig.ServerAddress)
-	netClient.Connect() // 非阻塞方法
+	// 初始化資源與多語系
+	i18n.Global.Init()
+	if err := i18n.Global.LoadJSON(i18n.LangZhTW, "client/i18n/zh_TW.json"); err != nil {
+		log.Printf("[i18n] ⚠️ Failed to load zh_TW.json")
+	}
+	i18n.Global.SetLanguage(i18n.LangZhTW)
 
-	// 3. 匯入場景切換器
-	log.Println("[Client] Init Scene Manager...")
+	if err := asset.LoadAssets(); err != nil {
+		log.Fatalf("[Asset] Critical error loading assets: %v", err)
+	}
+
+	log.Println("[Client] Start Network...")
+	netClient := network.NewNetworkClient(config.AppConfig.ServerAddress)
+	netClient.Connect()
+
 	sm := scene.NewSceneManager()
-	sm.Register("Login", scene.NewLoginScene(sm))
-	sm.Register("Map", scene.NewMapScene(sm))
-	
-	// 起始點先指定給 Login
+	sm.Register("Login", scene.NewLoginScene(sm, netClient))
+	sm.Register("Map", scene.NewMapScene(sm, netClient))
 	sm.SwitchTo("Login")
 
-	// 4. 掛載 Game
 	game := &Game{
 		networkClient: netClient,
 		sceneManager:  sm,
 	}
 
-	// 5. 設定作業系統視窗屬性
+	netClient.OnEnvelopeReceived = func(env *pb.Envelope) {
+		if resp := env.GetLoginResponse(); resp != nil {
+			if resp.Success {
+				ui.GlobalToastManager.Success(resp.Message)
+				if sm.CurrentName() == "Login" {
+					if resp.Message == "註冊成功！請重新登入。" || resp.Message == "Signup Success! Please Login." {
+						if loginScene, ok := sm.Current().(*scene.LoginScene); ok {
+							loginScene.SwitchToLoginMode()
+						}
+					} else {
+						sm.SwitchTo("Map")
+					}
+				}
+			} else {
+				ui.GlobalToastManager.Error(resp.Message)
+			}
+		}
+	}
+
 	ebiten.SetWindowSize(config.AppConfig.ScreenWidth, config.AppConfig.ScreenHeight)
 	ebiten.SetWindowTitle("Chronicles Formosa (台灣三國誌)")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
-	// 6. 燃燒你的生命吧，遊戲引擎！
-	log.Println("[Client] Launching Ebiten Engine...")
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
