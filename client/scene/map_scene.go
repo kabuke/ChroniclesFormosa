@@ -3,6 +3,8 @@ package scene
 import (
 	"fmt"
 	"image/color"
+	"math/rand"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -20,7 +22,11 @@ const (
 )
 
 type Tile struct {
-	Type int32
+	Type       int32
+	Tileset    string
+	TileIndex  int
+	OverlaySet string
+	OverlayIdx int
 }
 
 type Chunk struct {
@@ -44,8 +50,10 @@ func NewMapScene(m *SceneManager, net *network.NetworkClient) *MapScene {
 		manager:  m,
 		net:      net,
 		camera:   NewCamera(),
-		showGrid: true,
+		showGrid: false,
 	}
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for cx := 0; cx < WorldChunks; cx++ {
 		for cy := 0; cy < WorldChunks; cy++ {
@@ -57,14 +65,45 @@ func NewMapScene(m *SceneManager, net *network.NetworkClient) *MapScene {
 			}
 			for tx := 0; tx < ChunkWidth; tx++ {
 				for ty := 0; ty < ChunkWidth; ty++ {
-					tType := int32(0)
+					tType := int32(0) // 草地
+					tSet := "core16"
+					tIdx := 0 // 基礎草地
+					
+					oSet := ""
+					oIdx := -1
+
+					// 1. 基礎地形判定
 					if cx == 0 || cy == 0 || cx == WorldChunks-1 || cy == WorldChunks-1 {
 						tType = 2
+						tSet = "core16"
+						tIdx = 17 // 深藍純海洋 (四格連在一起的那種質感)
+					} else {
+						// 2. 隨機生成物件
+						prob := r.Float32()
+						if prob < 0.03 {
+							oSet = "core16"
+							// 隨機選一種陣營屋頂 (紅/綠/橘)
+							roofs := []int{1180, 796, 988}
+							oIdx = roofs[r.Intn(len(roofs))]
+						} else if prob < 0.06 {
+							oSet = "core16"
+							oIdx = 304 // 農田/作物
+						} else if prob < 0.09 {
+							oSet = "core16"
+							oIdx = 1328 // 礦石
+						} else if prob < 0.15 {
+							oSet = "core16"
+							oIdx = 48 // 樹木
+						}
 					}
-					if (tx+cx*ChunkWidth)%7 == 0 && (ty+cy*ChunkWidth)%5 == 0 {
-						tType = 1
+					
+					c.Tiles[tx][ty] = Tile{
+						Type: tType, 
+						Tileset: tSet, 
+						TileIndex: tIdx,
+						OverlaySet: oSet,
+						OverlayIdx: oIdx,
 					}
-					c.Tiles[tx][ty] = Tile{Type: tType}
 				}
 			}
 			s.chunks[cx][cy] = c
@@ -78,7 +117,6 @@ func (s *MapScene) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		s.manager.SwitchTo("Login")
 	}
-	// 修正：按 G 切換時，強制所有 Chunk 重繪
 	if inpututil.IsKeyJustPressed(ebiten.KeyG) {
 		s.showGrid = !s.showGrid
 		for cx := 0; cx < WorldChunks; cx++ {
@@ -91,7 +129,8 @@ func (s *MapScene) Update() error {
 }
 
 func (s *MapScene) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{10, 40, 80, 255})
+	// 背景底色改為深藍
+	screen.Fill(color.RGBA{10, 30, 60, 255})
 
 	centerX := int(s.camera.X / (ChunkWidth * TileSize))
 	centerY := int(s.camera.Y / (ChunkWidth * TileSize))
@@ -109,7 +148,7 @@ func (s *MapScene) Draw(screen *ebiten.Image) {
 	vector.DrawFilledRect(screen, 10, 40, 240, 140, color.RGBA{0, 0, 0, 180}, true)
 	text.Draw(screen, "MAP MODE\n[RightDrag] Move\n[Wheel] Zoom\n[G] Grid\n[ESC] Logout", asset.DefaultFont, 20, 65, color.White)
 	
-	camInfo := fmt.Sprintf("Cam: %.1f, %.1f\nZoom: x%.1f\nGrid: %v", s.camera.X, s.camera.Y, s.camera.Zoom, s.showGrid)
+	camInfo := fmt.Sprintf("Cam: %.1f, %.1f\nZoom: x%.1f", s.camera.X, s.camera.Y, s.camera.Zoom)
 	text.Draw(screen, camInfo, asset.DefaultFont, 20, 145, color.RGBA{200, 200, 100, 255})
 }
 
@@ -137,21 +176,31 @@ func (s *MapScene) renderChunkToImage(c *Chunk) {
 	for x := 0; x < ChunkWidth; x++ {
 		for y := 0; y < ChunkWidth; y++ {
 			t := c.Tiles[x][y]
-			clr := color.RGBA{50, 150, 50, 255}
-			switch t.Type {
-			case 1: clr = color.RGBA{100, 100, 100, 255}
-			case 2: clr = color.RGBA{30, 80, 160, 255}
-			}
-			tx, ty := float32(x*TileSize), float32(y*TileSize)
-			vector.DrawFilledRect(c.Image, tx, ty, TileSize, TileSize, clr, true)
+			tx, ty := float64(x*TileSize), float64(y*TileSize)
 			
-			// 只有開啟 showGrid 時才繪製瓦片格線
+			// 1. 繪製基礎地形
+			tileImg := asset.GetTile(t.Tileset, t.TileIndex)
+			if tileImg != nil {
+				op := &ebiten.DrawImageOptions{}
+				op.GeoM.Translate(tx, ty)
+				c.Image.DrawImage(tileImg, op)
+			}
+
+			// 2. 繪製疊加物件 (全部來自 core16 且已確保是 32x32)
+			if t.OverlaySet != "" && t.OverlayIdx != -1 {
+				oImg := asset.GetTile(t.OverlaySet, t.OverlayIdx)
+				if oImg != nil {
+					op := &ebiten.DrawImageOptions{}
+					op.GeoM.Translate(tx, ty)
+					c.Image.DrawImage(oImg, op)
+				}
+			}
+			
 			if s.showGrid {
-				vector.StrokeRect(c.Image, tx, ty, TileSize, TileSize, 1, color.RGBA{0, 0, 0, 40}, true)
+				vector.StrokeRect(c.Image, float32(tx), float32(ty), TileSize, TileSize, 1, color.RGBA{0, 0, 0, 40}, true)
 			}
 		}
 	}
-	// Chunk 邊框 (常駐，顏色變淡)
 	vector.StrokeRect(c.Image, 0, 0, ChunkWidth*TileSize, ChunkWidth*TileSize, 1, color.RGBA{255, 255, 255, 60}, true)
 }
 
