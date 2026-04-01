@@ -118,7 +118,6 @@ func main() {
 				Username:        "DummyTest8",
 				Password:        "Password123",
 				ConfirmPassword: "Password123",
-				FactionId:       1,
 			},
 		},
 	}

@@ -6,6 +6,7 @@ import "github.com/kabuke/ChroniclesFormosa/server/model"
 type PlayerRepo interface {
 	Create(player *model.Player) error
 	FindByUsername(username string) (*model.Player, error)
+	FindByVillageID(villageID int64) ([]*model.Player, error)
 	Update(player *model.Player) error
 	CountByVillageID(villageID int64) (int64, error)
 }

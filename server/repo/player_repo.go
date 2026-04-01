@@ -37,6 +37,12 @@ func (r *playerRepoImpl) FindByUsername(username string) (*model.Player, error) 
 	return &p, err
 }
 
+func (r *playerRepoImpl) FindByVillageID(villageID int64) ([]*model.Player, error) {
+	var players []*model.Player
+	err := database.GetDB().Where("village_id = ?", villageID).Find(&players).Error
+	return players, err
+}
+
 func (r *playerRepoImpl) Update(player *model.Player) error {
 	return database.GetDB().Save(player).Error
 }

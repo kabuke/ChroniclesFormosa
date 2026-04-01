@@ -4,11 +4,14 @@ import (
 	"log"
 
 	pb "github.com/kabuke/ChroniclesFormosa/resource"
+	"github.com/kabuke/ChroniclesFormosa/server/logic/social"
+	"github.com/kabuke/ChroniclesFormosa/server/logic/stamina"
 	village_logic "github.com/kabuke/ChroniclesFormosa/server/logic/village"
+	"github.com/kabuke/ChroniclesFormosa/server/repo"
 	"github.com/kabuke/ChroniclesFormosa/server/session"
 )
 
-// HandleVillageAction 處理所有莊頭相關請求 (VillageAction oneof)
+// HandleVillageAction 處理所有莊頭相關請求
 func HandleVillageAction(action *pb.VillageAction, s *session.UserSession) {
 	switch req := action.Action.(type) {
 	case *pb.VillageAction_InfoReq:
@@ -17,88 +20,160 @@ func HandleVillageAction(action *pb.VillageAction, s *session.UserSession) {
 		handleVillageJoinReq(req.JoinReq, s)
 	case *pb.VillageAction_ElectReq:
 		handleVillageElectReq(req.ElectReq, s)
+	case *pb.VillageAction_ImpeachReq:
+		handleVillageImpeachReq(req.ImpeachReq, s)
+	case *pb.VillageAction_MembersReq:
+		handleVillageMemberListReq(req.MembersReq, s)
+	case *pb.VillageAction_StabilityReq:
+		handleVillageStabilityReq(req.StabilityReq, s)
+	case *pb.VillageAction_ListReq:
+		handleVillageListReq(req.ListReq, s)
 	default:
 		log.Println("[VillageHandler] Unhandled VillageAction:", req)
 	}
 }
 
-// handleVillageInfoReq: 查詢村莊詳細資訊 (包含動態人口統計)
+// handleVillageListReq 獲取全服庄頭清單
+func handleVillageListReq(req *pb.VillageListReq, s *session.UserSession) {
+	villages, err := village_logic.GetAllVillages()
+	if err != nil {
+		log.Printf("[VillageHandler] ListReq failed: %v", err)
+		return
+	}
+	resp := &pb.Envelope{
+		Payload: &pb.Envelope_Village{
+			Village: &pb.VillageAction{
+				Action: &pb.VillageAction_ListResp{
+					ListResp: &pb.VillageListResp{Villages: villages},
+				},
+			},
+		},
+	}
+	s.QueueMessage(resp)
+	if s.TriggerFlush != nil { s.TriggerFlush() }
+}
+
+func handleVillageStabilityReq(req *pb.VillageStabilityReq, s *session.UserSession) {
+	pRepo := repo.NewPlayerRepo()
+	p, _ := pRepo.FindByUsername(s.Username)
+	if !stamina.ConsumeStamina(p, 10) {
+		sendSystemMsg(s, "精力不足，無法執行維穩操作")
+		return
+	}
+
+	msg, err := social.HandleStabilityOperation(s.Username, req.VillageId, req.Type)
+	if err != nil {
+		sendSystemMsg(s, "操作失敗："+err.Error())
+		return
+	}
+	_ = pRepo.Update(p)
+	stamina.SyncStamina(s, p)
+	broadcastSystemMsg(msg)
+}
+
+func handleVillageMemberListReq(req *pb.VillageMemberListReq, s *session.UserSession) {
+	members, err := village_logic.GetVillageMembers(req.VillageId)
+	if err != nil {
+		log.Printf("[VillageHandler] MembersReq failed: %v", err)
+		return
+	}
+	resp := &pb.Envelope{
+		Payload: &pb.Envelope_Village{
+			Village: &pb.VillageAction{
+				Action: &pb.VillageAction_MembersResp{
+					MembersResp: &pb.VillageMemberListResp{VillageId: req.VillageId, Members: members},
+				},
+			},
+		},
+	}
+	s.QueueMessage(resp)
+	if s.TriggerFlush != nil { s.TriggerFlush() }
+}
+
 func handleVillageInfoReq(req *pb.VillageInfoReq, s *session.UserSession) {
-	village, population, err := village_logic.GetVillageInfo(req.VillageId)
+	targetID := req.VillageId
+	if targetID == 0 { targetID = s.VillageID }
+	if targetID == 0 { 
+		handleVillageListReq(&pb.VillageListReq{}, s)
+		return
+	}
+	village, population, err := village_logic.GetVillageInfo(targetID)
 	if err != nil {
 		log.Printf("[VillageHandler] InfoReq failed: %v", err)
 		return
 	}
-
 	resp := &pb.Envelope{
 		Payload: &pb.Envelope_Village{
 			Village: &pb.VillageAction{
 				Action: &pb.VillageAction_InfoResp{
 					InfoResp: &pb.VillageInfoResp{
-						VillageId:     village.ID,
-						Name:          village.Name,
-						Level:         village.Level,
-						Population:    population, // int32
-						MaxPopulation: 100,        // Phase 1 預設最多 100 人
-						Headman:       "",         // Phase 1 尚未實作頭目選舉
+						VillageId: village.ID, Name: village.Name, Level: village.Level,
+						Population: population, MaxPopulation: 100, Headman: village.Headman,
+						Wood: village.Wood, Food: village.Food, Iron: village.Iron,
+						Soldiers: village.Soldiers,
 					},
 				},
 			},
 		},
 	}
 	s.QueueMessage(resp)
-	if s.TriggerFlush != nil {
-		s.TriggerFlush()
-	}
+	if s.TriggerFlush != nil { s.TriggerFlush() }
 }
 
-// handleVillageJoinReq: 驗證玩家身分並寫入資料庫歸屬派系
 func handleVillageJoinReq(req *pb.VillageJoinReq, s *session.UserSession) {
-	sendResp := func(success bool, msg string) {
-		resp := &pb.Envelope{
-			Payload: &pb.Envelope_Village{
-				Village: &pb.VillageAction{
-					Action: &pb.VillageAction_JoinResp{
-						JoinResp: &pb.VillageJoinResp{
-							Success: success,
-							Message: msg,
-						},
-					},
-				},
-			},
-		}
-		s.QueueMessage(resp)
-		if s.TriggerFlush != nil {
-			s.TriggerFlush()
-		}
-	}
-
-	// 委派至 Logic 層：處理 DB 驗證與更新
 	err := village_logic.JoinVillage(s.Username, req.VillageId)
 	if err != nil {
-		sendResp(false, err.Error())
+		sendSystemMsg(s, "加入失敗："+err.Error())
 		return
 	}
-
-	sendResp(true, "成功加入莊頭！")
+	s.VillageID = req.VillageId
+	sendSystemMsg(s, "成功加入莊頭！從此落葉歸根。")
+	handleVillageInfoReq(&pb.VillageInfoReq{VillageId: req.VillageId}, s)
 }
 
-// handleVillageElectReq 預防性拋出未實作之例外 (Phase 2 的範圍)
 func handleVillageElectReq(req *pb.VillageElectReq, s *session.UserSession) {
-	resp := &pb.Envelope{
-		Payload: &pb.Envelope_Village{
-			Village: &pb.VillageAction{
-				Action: &pb.VillageAction_ElectResp{
-					ElectResp: &pb.VillageElectResp{
-						Success: false,
-						Message: "選舉與報名參選功能尚未開放，敬請期待 Phase 2",
-					},
-				},
-			},
+	pRepo := repo.NewPlayerRepo()
+	p, _ := pRepo.FindByUsername(s.Username)
+	if !stamina.ConsumeStamina(p, 5) {
+		sendSystemMsg(s, "精力不足，無法發起推舉")
+		return
+	}
+	msg, err := village_logic.ElectHeadman(s.Username, req.VillageId)
+	if err != nil {
+		sendSystemMsg(s, "推舉失敗："+err.Error())
+		return
+	}
+	_ = pRepo.Update(p)
+	stamina.SyncStamina(s, p)
+	broadcastSystemMsg(msg)
+	handleVillageInfoReq(&pb.VillageInfoReq{VillageId: req.VillageId}, s)
+}
+
+func handleVillageImpeachReq(req *pb.VillageImpeachReq, s *session.UserSession) {
+	msg, err := village_logic.ImpeachHeadman(s.Username, req.VillageId)
+	if err != nil {
+		sendSystemMsg(s, "彈劾失敗："+err.Error())
+		return
+	}
+	broadcastSystemMsg(msg)
+	handleVillageInfoReq(&pb.VillageInfoReq{VillageId: req.VillageId}, s)
+}
+
+func sendSystemMsg(s *session.UserSession, msg string) {
+	env := &pb.Envelope{
+		Payload: &pb.Envelope_Chat{
+			Chat: &pb.ChatMessage{Channel: pb.ChatChannelType_CHANNEL_PRIVATE, Sender: "【系統】", Content: msg},
 		},
 	}
-	s.QueueMessage(resp)
-	if s.TriggerFlush != nil {
-		s.TriggerFlush()
+	s.QueueMessage(env)
+	if s.TriggerFlush != nil { s.TriggerFlush() }
+}
+
+func broadcastSystemMsg(msg string) {
+	env := &pb.Envelope{
+		Payload: &pb.Envelope_Chat{
+			Chat: &pb.ChatMessage{Channel: pb.ChatChannelType_CHANNEL_GLOBAL, Sender: "廟口說書人", Content: msg},
+		},
 	}
+	session.GetManager().AddToForwardQueue(env)
 }

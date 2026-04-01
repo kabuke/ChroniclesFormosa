@@ -1,154 +1,113 @@
 package social
 
 import (
+	"errors"
+	"fmt"
 	"log"
-	"math"
 	"time"
 
 	pb "github.com/kabuke/ChroniclesFormosa/resource"
+	"github.com/kabuke/ChroniclesFormosa/server/database"
 	"github.com/kabuke/ChroniclesFormosa/server/model"
 	"github.com/kabuke/ChroniclesFormosa/server/repo"
 	"github.com/kabuke/ChroniclesFormosa/server/session"
 )
 
-// StartTensionEngine 啟動全服族群緊張儀計算循環
-func StartTensionEngine() {
-	// 每 30 秒計算一次漂移
-	ticker := time.NewTicker(30 * time.Second)
-	defer ticker.Stop()
-
-	log.Println("[TensionEngine] 🧨 Ethnic Tension Engine Started. Tick: 30s.")
-
-	for range ticker.C {
-		tickTension()
-	}
-}
-
-func tickTension() {
+// HandleStabilityOperation 處理庄長的維穩操作邏輯
+func HandleStabilityOperation(username string, villageID int64, opType pb.StabilityOpType) (string, error) {
 	vRepo := repo.NewVillageRepo()
-	villages, err := vRepo.FindAll()
-	if err != nil {
-		return
+	v, err := vRepo.FindByID(villageID)
+	if err != nil || v == nil { return "", errors.New("找不到指定的庄頭") }
+
+	// 🇹🇼 直接檢查庄頭表中的 Headman，確保推舉成功後權限立即生效
+	if v.Headman != username {
+		return "", errors.New("權限不足：僅庄長可發起社會維穩操作")
 	}
 
-	for _, v := range villages {
-		oldValue := v.TensionValue
-		
-		// 1. 計算增量
-		delta := calculateTensionDelta(v)
-		v.TensionValue += delta
-
-		// 限制在 0-100
+	switch opType {
+	case pb.StabilityOpType_OP_BANQUET:
+		if v.Food < 50 { return "", errors.New("糧食不足 (需 50)") }
+		v.Food -= 50
+		v.TensionValue -= 15
 		if v.TensionValue < 0 { v.TensionValue = 0 }
-		if v.TensionValue > 100 { v.TensionValue = 100 }
-
-		// 2. 處理爆發 (分類械鬥)
-		if v.TensionValue >= 100 {
-			triggerRiot(v)
-		}
-
-		// 3. 存檔與廣播 (若有變化)
-		if v.TensionValue != oldValue {
-			_ = vRepo.Update(v)
-			broadcastTension(v)
-		}
+		_ = vRepo.Update(v)
+		broadcastTension(v)
+		return fmt.Sprintf("「大辦筵席！」%s 庄長設宴款待，緊張氣氛大為緩和。", v.Name), nil
+	case pb.StabilityOpType_OP_RITUAL:
+		if v.Wood < 50 { return "", errors.New("木材不足 (需 50)") }
+		v.Wood -= 50
+		v.Loyalty += 10
+		if v.Loyalty > 100 { v.Loyalty = 100 }
+		_ = vRepo.Update(v)
+		return fmt.Sprintf("「祭祀先祖！」%s 庄長焚香祭拜，聚落民忠提升。", v.Name), nil
+	default:
+		return "", errors.New("未知的操作類型")
 	}
 }
 
-func calculateTensionDelta(v *model.Village) int32 {
-	totalPop := float64(v.PopMinNan + v.PopHakka + v.PopIndigenous)
-	if totalPop < 10 {
-		return -1 // 人煙稀少，自然降溫
-	}
-
-	delta := 0.0
-
-	// A. 族群競爭效應 (Entropy-based or Ratio-based)
-	// 如果兩族群人數接近，緊張度上升
-	r1 := float64(v.PopMinNan) / totalPop
-	r2 := float64(v.PopHakka) / totalPop
-	r3 := float64(v.PopIndigenous) / totalPop
-
-	// 使用標準差的倒數來模擬「接近程度」
-	avg := 0.333
-	variance := ((r1-avg)*(r1-avg) + (r2-avg)*(r2-avg) + (r3-avg)*(r3-avg)) / 3
-	stdDev := math.Sqrt(variance)
-
-	// stdDev 越小代表族群越勢均力敵，容易發生衝突
-	if stdDev < 0.15 {
-		delta += 2.0
-	}
-
-	// B. 糧食壓力
-	if v.Food < 100 {
-		delta += 1.5
-	}
-
-	// C. 穩定度/治安抑制
-	stabilityFactor := float64(v.Stability) / 100.0 // 0~1
-	delta -= stabilityFactor * 1.5
-
-	return int32(math.Round(delta))
-}
-
-func triggerRiot(v *model.Village) {
-	log.Printf("[TensionEngine] 💥 RIOT TRIGGERED in '%s'!", v.Name)
+func broadcastTension(v *model.Village) {
+	level := "PEACE"
+	if v.TensionValue > 80 { level = "RIOT" } else if v.TensionValue > 60 { level = "TENSE" } else if v.TensionValue > 30 { level = "UNEASY" }
 	
-	// 懲罰：隨機減少各族群人口 10%
-	v.PopMinNan = int32(float64(v.PopMinNan) * 0.9)
-	v.PopHakka = int32(float64(v.PopHakka) * 0.9)
-	v.PopIndigenous = int32(float64(v.PopIndigenous) * 0.9)
-	
-	// 資源損毀
-	v.Food /= 2
-	v.Wood /= 2
-	
-	// 事件發生後降溫
-	v.TensionValue = 40
-	v.Stability = 30 // 治安大降
-	
-	// 發送全服/全庄頭廣播
 	env := &pb.Envelope{
-		Payload: &pb.Envelope_Chat{
-			Chat: &pb.ChatMessage{
-				Channel: pb.ChatChannelType_CHANNEL_GLOBAL,
-				Sender:  "【系統公告】",
-				Content: "「分類械鬥爆發！」" + v.Name + " 境內各族群爆發武裝衝突，傷亡慘重。",
+		Payload: &pb.Envelope_Tension{
+			Tension: &pb.TensionUpdate{
+				VillageId: v.ID, TensionValue: v.TensionValue, VisualLevel: level,
 			},
 		},
 	}
 	session.GetManager().AddToForwardQueue(env)
 }
 
-func broadcastTension(v *model.Village) {
-	level := "PEACE"
-	if v.TensionValue > 80 {
-		level = "RIOT"
-	} else if v.TensionValue > 60 {
-		level = "TENSE"
-	} else if v.TensionValue > 30 {
-		level = "UNEASY"
-	}
+func StartTensionEngine() {
+	ticker := time.NewTicker(30 * time.Second)
+	log.Println("[TensionEngine] 🧨 Ethnic Tension Engine Started. Tick: 30s.")
+	go func() {
+		for range ticker.C {
+			processTensionTick()
+		}
+	}()
+}
 
+func processTensionTick() {
+	db := database.GetDB()
+	var villages []model.Village
+	db.Find(&villages)
+
+	for _, v := range villages {
+		totalPop := float64(v.PopMinNan + v.PopHakka + v.PopIndigenous)
+		if totalPop == 0 { continue }
+
+		// 計算人口異質度：比例越平均，張力基礎越高
+		p1, p2, p3 := float64(v.PopMinNan)/totalPop, float64(v.PopHakka)/totalPop, float64(v.PopIndigenous)/totalPop
+		diversity := 1.0 - (p1*p1 + p2*p2 + p3*p3) 
+		
+		delta := int32(diversity * 10) // 最大 +6~7 每 Tick
+		
+		// 糧食壓力
+		if v.Food < int64(totalPop/2) { delta += 5 }
+		
+		v.TensionValue += delta
+		if v.TensionValue >= 100 {
+			v.TensionValue = 100
+			triggerRiot(&v)
+		}
+		db.Save(&v)
+		broadcastTension(&v)
+	}
+}
+
+func triggerRiot(v *model.Village) {
+	msg := fmt.Sprintf("【分類械鬥】%s 爆發族群衝突！人口受損，資源遭劫。", v.Name)
+	v.PopMinNan = int32(float64(v.PopMinNan) * 0.9)
+	v.PopHakka = int32(float64(v.PopHakka) * 0.9)
+	v.PopIndigenous = int32(float64(v.PopIndigenous) * 0.9)
+	v.Food /= 2
+	
 	env := &pb.Envelope{
-		Payload: &pb.Envelope_Tension{
-			Tension: &pb.TensionUpdate{
-				VillageId:    v.ID,
-				TensionValue: v.TensionValue,
-				VisualLevel:  level,
-			},
+		Payload: &pb.Envelope_Chat{
+			Chat: &pb.ChatMessage{Channel: pb.ChatChannelType_CHANNEL_GLOBAL, Sender: "廟口說書人", Content: msg},
 		},
 	}
-
-	// 只廣播給該庄頭的玩家
-	sm := session.GetManager()
-	sessions := sm.GetAllSessions()
-	for _, s := range sessions {
-		if s.VillageID == v.ID {
-			s.QueueMessage(env)
-			if s.TriggerFlush != nil {
-				go s.TriggerFlush()
-			}
-		}
-	}
+	session.GetManager().AddToForwardQueue(env)
 }

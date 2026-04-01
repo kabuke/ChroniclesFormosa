@@ -40,7 +40,6 @@ func TestHandleRegisterAndLogin(t *testing.T) {
 		Password:        "password123",
 		ConfirmPassword: "password123",
 		Nickname:        "Tester",
-		FactionId:       1,
 	}
 	HandleRegister(regReq, sess)
 

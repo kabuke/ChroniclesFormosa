@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/kabuke/ChroniclesFormosa/server/logic/faction"
 	"github.com/kabuke/ChroniclesFormosa/server/repo"
 )
 
@@ -21,6 +22,9 @@ func StartEconomyEngine() {
 }
 
 func settleEconomy() {
+	log.Println("[EconomyEngine] ⚖️ Calculating Faction Balance...")
+	faction.RebalanceFactions()
+
 	vRepo := repo.NewVillageRepo()
 	villages, err := vRepo.FindAll()
 	if err != nil {
@@ -34,21 +38,24 @@ func settleEconomy() {
 	for _, v := range villages {
 		pop, _ := pRepo.CountByVillageID(v.ID)
 		
-		// 經濟資源產出公式: 基礎保障(10) + (村莊等級 * 人口 * 10)
+		// 基礎經濟資源產出公式: 基礎保障(10) + (村莊等級 * 人口 * 10)
 		production := int64(10 + (v.Level * int32(pop) * 10))
 		
-		v.Wood += production
-		v.Food += production
-		v.Iron += production
+		// 應用陣營加成 (Phase 2: 天命加成)
+		multiplier := faction.GetBuffMultiplier(v.FactionID)
+		finalProd := int64(float64(production) * multiplier)
+
+		v.Wood += finalProd
+		v.Food += finalProd
+		v.Iron += finalProd
 
 		if err := vRepo.Update(v); err != nil {
 			log.Printf("[EconomyEngine] Failed to update village %d: %v", v.ID, err)
 		} else {
-			// 只在有真實產出的時候印出 (避開沒人、沒升級的空莊頭瘋狂洗頻)
 			if pop > 0 {
-				log.Printf("[EconomyEngine] 🌾 Village '%s' produced +%d resources. (Pop: %d)", v.Name, production, pop)
+				log.Printf("[EconomyEngine] 🌾 Village '%s' produced +%d resources. (Pop: %d, Buff: %.1fx)", v.Name, finalProd, pop, multiplier)
 			}
-			totalYield += production
+			totalYield += finalProd
 		}
 	}
 

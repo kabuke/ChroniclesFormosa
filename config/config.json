@@ -1,11 +1,6 @@
 {
-  "server_port": 8999,
-  "server_address": "0.0.0.0",
-  "database_path": "./data/formosa.db",
-  "app_window_size": 128,
-  "max_pending_queue_size": 1024,
-  "kcp_nodelay": 1,
-  "kcp_interval": 20,
-  "kcp_resend": 2,
-  "kcp_nc": 1
+  "ServerAddress": "127.0.0.1:9999",
+  "ScreenWidth": 1024,
+  "ScreenHeight": 768,
+  "LogLevel": "info"
 }

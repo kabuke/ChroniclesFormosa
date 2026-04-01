@@ -74,3 +74,9 @@ func DecryptAESGCM(cipherText, nonce, key []byte) ([]byte, error) {
 
 	return plainText, nil
 }
+
+// HashSHA256 將字串進行 SHA256 雜湊並回傳十六進位字串
+func HashSHA256(input string) string {
+	h := sha256.Sum256([]byte(input))
+	return fmt.Sprintf("%x", h)
+}

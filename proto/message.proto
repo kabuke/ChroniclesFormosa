@@ -102,6 +102,9 @@ message Envelope {
         // 外交
         DiplomacyAction diplomacy = 36;
 
+        // 陣營狀態
+        FactionBuffSync faction_buff = 37;
+
         // 天災
         DisasterAction disaster = 40;
 
@@ -135,7 +138,6 @@ message Register {
     string password = 2;
     string confirm_password = 3;
     string nickname = 4;
-    int32  faction_id = 5;   // 選擇陣營：1=清軍, 2=義軍, 3=原民
 }
 
 // ═══════════════════════════════════════
@@ -157,6 +159,7 @@ message ChatMessage {
     int64 timestamp = 4;
     ChatChannelType channel = 5;
 }
+
 message IntelHint {
     string hint_text = 1;
     string direction = 2;
@@ -206,6 +209,16 @@ message DiplomacyResp {
     string result_desc = 2;
 }
 
+message DiplomacyRelation {
+    int64 source_id = 1;
+    int64 target_id = 2;
+    int32 type = 3;
+}
+
+message FactionBuffSync {
+    double multiplier = 1;
+}
+
 // ═══════════════════════════════════════
 // 業務訊息：庄頭系統
 // ═══════════════════════════════════════
@@ -220,7 +233,30 @@ message VillageAction {
         VillageElectResp elect_resp = 6;
         VillageImpeachReq impeach_req = 7;
         VillageImpeachResp impeach_resp = 8;
+        VillageMemberListReq members_req = 9;
+        VillageMemberListResp members_resp = 10;
+        VillageStabilityReq stability_req = 11;
+        VillageListReq list_req = 12;
+        VillageListResp list_resp = 13;
     }
+}
+
+message VillageSummary {
+    int64 village_id = 1;
+    string name = 2;
+    int32 level = 3;
+    int32 population = 4;
+    int32 faction_id = 5;
+    int32 x = 6;
+    int32 y = 7;
+}
+
+message VillageListReq {
+    int32 filter_faction_id = 1; // 0 為獲取所有
+}
+
+message VillageListResp {
+    repeated VillageSummary villages = 1;
 }
 
 message VillageInfoReq {
@@ -234,6 +270,10 @@ message VillageInfoResp {
     int32 population = 4;
     int32 max_population = 5;
     string headman = 6;
+    int64 wood = 7;
+    int64 food = 8;
+    int64 iron = 9;
+    int32 soldiers = 10;
 }
 
 message VillageJoinReq {
@@ -247,7 +287,6 @@ message VillageJoinResp {
 
 message VillageElectReq {
     int64 village_id = 1;
-    string candidate_name = 2;
 }
 
 message VillageElectResp {
@@ -263,6 +302,31 @@ message VillageImpeachReq {
 message VillageImpeachResp {
     bool success = 1;
     string message = 2;
+}
+
+message VillageMember {
+    string username = 1;
+    string nickname = 2;
+    int32 role = 3;
+}
+
+message VillageMemberListReq {
+    int64 village_id = 1;
+}
+
+message VillageMemberListResp {
+    int64 village_id = 1;
+    repeated VillageMember members = 2;
+}
+
+enum StabilityOpType {
+    OP_BANQUET = 0; // 辦桌 (耗糧，降緊張)
+    OP_RITUAL = 1;  // 祭祀 (耗木，升民忠)
+}
+
+message VillageStabilityReq {
+    int64 village_id = 1;
+    StabilityOpType type = 2;
 }
 
 // ═══════════════════════════════════════

@@ -105,6 +105,19 @@ func (m *LanguageManager) seedAll() {
 	tw["NICKNAME"] = "遊戲暱稱"
 	tw["FACTION"] = "陣營 (1-3)"
 	tw["REGISTER_BTN"] = "註冊"
+	tw["DIPLO_TITLE"] = "外交與合約"
+	tw["DIPLO_TARGET"] = "目標物件"
+	tw["DIPLO_ALLIANCE"] = "建立結盟"
+	tw["DIPLO_MARRIAGE"] = "提議聯姻"
+	tw["DIPLO_BLOOD"] = "義結金蘭"
+	tw["DIPLO_CONFIRM_TITLE"] = "外交請求"
+	tw["ACCEPT"] = "接受"
+	tw["REJECT"] = "拒絕"
+	tw["STAMINA_INSUFFICIENT"] = "精力不足，請稍事休息。"
+	tw["DIPLO_ALLIANCE_SUCCESS"] = "結盟協議已達成"
+	tw["DIPLO_MARRIAGE_SUCCESS"] = "聯姻慶典圓滿完成"
+	tw["DIPLO_RECONCILE_SUCCESS"] = "理番和議達成，獲得勇士效忠"
+	tw["INTEL_PANEL_TITLE"] = "廟口傳聞錄"
 
 	// 簡體中文
 	cn := m.bundle[LangZhCN]
