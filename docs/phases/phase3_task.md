@@ -15,93 +15,93 @@
 
 ## 一、Protobuf 擴充
 
-- [ ] 1.1 定義 `DisasterType` 枚舉（EARTHQUAKE / TYPHOON / PLAGUE）
-- [ ] 1.2 定義 `TyphoonPhase` 枚舉（WARNING / LANDING / FADING）
-- [ ] 1.3 定義 `ObstacleType` 枚舉（LANDSLIDE / BANDIT / BROKEN_BRIDGE）
-- [ ] 1.4 定義 `ReliefGrade` 枚舉（PERFECT / GOOD / FAIL）
-- [ ] 1.5 定義 `EarthquakeNotify` / `TyphoonNotify` / `DisasterWarning`
-- [ ] 1.6 定義 `ReliefGameStart` / `ReliefTarget` / `ReliefObstacle`
-- [ ] 1.7 定義 `ReliefDonateReq` / `ReliefRouteSubmit` / `RoutePoint`
-- [ ] 1.8 定義 `ReliefResult`
-- [ ] 1.9 Action 枚舉擴充（DISASTER 系列 20-29）
-- [ ] 1.10 執行 `gen_proto.sh` 確認生成無誤
+- [x] 1.1 定義 `DisasterType` 枚舉（EARTHQUAKE / TYPHOON / PLAGUE）
+- [x] 1.2 定義 `TyphoonPhase` 枚舉（WARNING / LANDING / FADING）
+- [x] 1.3 定義 `ObstacleType` 枚舉（LANDSLIDE / BANDIT / BROKEN_BRIDGE）
+- [x] 1.4 定義 `ReliefGrade` 枚舉（PERFECT / GOOD / FAIL）
+- [x] 1.5 定義 `EarthquakeNotify` / `TyphoonNotify` / `DisasterWarning`
+- [x] 1.6 定義 `ReliefGameStart` / `ReliefTarget` / `ReliefObstacle`
+- [x] 1.7 定義 `ReliefDonateReq` / `ReliefRouteSubmit` / `RoutePoint`
+- [x] 1.8 定義 `ReliefResult`
+- [x] 1.9 Action 枚舉擴充（DISASTER 系列 20-29）
+- [x] 1.10 執行 `gen_proto.sh` 確認生成無誤
 
 ---
 
 ## 二、伺服器端
 
 ### 2.1 天災排程器
-- [ ] 2.1.1 `server/logic/disaster/timer.go`：DisasterTimer 核心
-- [ ] 2.1.2 地震隨機排程（每賽季 3~5 次）
-- [ ] 2.1.3 颱風季節判斷（5-10 月限定，每季 2~4 次）
-- [ ] 2.1.4 預警推播（提前 1 小時）
+- [x] 2.1.1 `server/logic/disaster/timer.go`：DisasterTimer 核心
+- [x] 2.1.2 地震隨機排程（每賽季 3~5 次）
+- [x] 2.1.3 颱風季節判斷（5-10 月限定，每季 2~4 次）
+- [x] 2.1.4 預警推播（提前 1 小時）
 
 ### 2.2 地震邏輯
-- [ ] 2.2.1 `server/logic/disaster/earthquake.go`：震度計算
-- [ ] 2.2.2 影響範圍計算（震央 + 半徑 + 衰減）
-- [ ] 2.2.3 城牆/糧倉/民忠損傷套用
-- [ ] 2.2.4 地形改變判定（高震度→新渡口/山路）
+- [x] 2.2.1 `server/logic/disaster/earthquake.go`：震度計算
+- [x] 2.2.2 影響範圍計算（震央 + 半徑 + 衰減）
+- [x] 2.2.3 城牆/糧倉/民忠損傷套用
+- [x] 2.2.4 地形改變判定（高震度→新渡口/山路）
 
 ### 2.3 颱風邏輯
-- [ ] 2.3.1 `server/logic/disaster/typhoon.go`：颱風路徑生成
-- [ ] 2.3.2 海域封鎖邏輯
-- [ ] 2.3.3 農田產量歸零
-- [ ] 2.3.4 行軍速度修正（降至 20%）
-- [ ] 2.3.5 颱風三階段（預警→登陸→消退）狀態機
+- [x] 2.3.1 `server/logic/disaster/typhoon.go`：颱風路徑生成
+- [x] 2.3.2 海域封鎖邏輯
+- [x] 2.3.3 農田產量歸零
+- [x] 2.3.4 行軍速度修正（降至 20%）
+- [x] 2.3.5 颱風三階段（預警→登陸→消退）狀態機
 
 ### 2.4 瘟疫邏輯（基礎版）
-- [ ] 2.4.1 `server/logic/disaster/plague.go`：觸發條件判定
-- [ ] 2.4.2 人口持續損失計算
-- [ ] 2.4.3 藥鋪對抗效果
+- [x] 2.4.1 `server/logic/disaster/plague.go`：觸發條件判定
+- [x] 2.4.2 人口持續損失計算
+- [x] 2.4.3 藥鋪對抗效果
 
 ### 2.5 救災系統
-- [ ] 2.5.1 `server/logic/disaster/relief.go`：救災發起邏輯
-- [ ] 2.5.2 庄民精力捐獻 → 道具轉換
-- [ ] 2.5.3 路線評分演算法（距離、急迫度、障礙排除）
-- [ ] 2.5.4 獎勵計算（BUFF、隱藏資源發現機率）
-- [ ] 2.5.5 救災結果廣播
+- [x] 2.5.1 `server/logic/disaster/relief.go`：救災發起邏輯
+- [x] 2.5.2 庄民精力捐獻 → 道具轉換
+- [x] 2.5.3 路線評分演算法（距離、急迫度、障礙排除）
+- [x] 2.5.4 獎勵計算（BUFF、隱藏資源發現機率）
+- [x] 2.5.5 救災結果廣播
 
 ### 2.6 Handler 層
-- [ ] 2.6.1 `server/handler/disaster_handler.go`
-- [ ] 2.6.2 處理 ReliefDonateReq
-- [ ] 2.6.3 處理 ReliefRouteSubmit
-- [ ] 2.6.4 天災通知推播（全服/區域）
+- [x] 2.6.1 `server/handler/disaster_handler.go`
+- [x] 2.6.2 處理 ReliefDonateReq
+- [x] 2.6.3 處理 ReliefRouteSubmit
+- [x] 2.6.4 天災通知推播（全服/區域）
 
 ---
 
 ## 三、客戶端
 
 ### 3.1 視覺特效
-- [ ] 3.1.1 `client/ui/screen_shake.go`：螢幕震動效果
-- [ ] 3.1.2 `client/ui/explosion.go`：GuiExplosion 粒子（地震碎石）
-- [ ] 3.1.3 颱風雨滴粒子系統
-- [ ] 3.1.4 颱風灰暗濾鏡
-- [ ] 3.1.5 風向箭頭 UI
+- [x] 3.1.1 `client/ui/screen_shake.go`：螢幕震動效果
+- [x] 3.1.2 `client/ui/explosion.go`：GuiExplosion 粒子（地震碎石）
+- [x] 3.1.3 颱風雨滴粒子系統
+- [x] 3.1.4 颱風灰暗濾鏡
+- [x] 3.1.5 風向箭頭 UI
 
 ### 3.2 預警 UI
-- [ ] 3.2.1 Navbar 氣候警告閃爍動畫
-- [ ] 3.2.2 天災倒計時顯示
-- [ ] 3.2.3 預警 Toast 通知
+- [x] 3.2.1 Navbar 氣候警告閃爍動畫
+- [x] 3.2.2 天災倒計時顯示
+- [x] 3.2.3 預警 Toast 通知
 
 ### 3.3 救災小遊戲場景
-- [ ] 3.3.1 `client/scene/relief_scene.go`：場景骨架
-- [ ] 3.3.2 俯瞰圖渲染（村落 + 倉庫 + 道路網）
-- [ ] 3.3.3 牛車路線繪製交互（滑鼠/觸控拖曳）
-- [ ] 3.3.4 障礙物渲染（土石流/亂民/斷橋）
-- [ ] 3.3.5 道具 UI（修橋工具/護衛隊按鈕）
-- [ ] 3.3.6 倒計時 + 急迫度指示器
-- [ ] 3.3.7 結算畫面（評分 + 獎勵展示）
+- [x] 3.3.1 `client/scene/relief_scene.go`：場景骨架
+- [x] 3.3.2 俯瞰圖渲染（村落 + 倉庫 + 道路網）
+- [x] 3.3.3 牛車路線繪製交互（滑鼠/觸控拖曳）
+- [x] 3.3.4 障礙物渲染（土石流/亂民/斷橋）
+- [x] 3.3.5 道具 UI（修橋工具/護衛隊按鈕）
+- [x] 3.3.6 倒計時 + 急迫度指示器
+- [x] 3.3.7 結算畫面（評分 + 獎勵展示）
 
 ### 3.4 庄民支援 UI
-- [ ] 3.4.1 「支援」按鈕（捐精力）
-- [ ] 3.4.2 庄長獲得道具的動畫回饋
-- [ ] 3.4.3 支援者清單顯示
+- [x] 3.4.1 「支援」按鈕（捐精力）
+- [x] 3.4.2 庄長獲得道具的動畫回饋
+- [x] 3.4.3 支援者清單顯示
 
 ### 3.5 Network Listener 擴充
-- [ ] 3.5.1 新增 EarthquakeNotify / TyphoonNotify 監聽
-- [ ] 3.5.2 新增 DisasterWarning 監聽
-- [ ] 3.5.3 新增 ReliefGameStart 監聽
-- [ ] 3.5.4 新增 ReliefResult 監聽
+- [x] 3.5.1 新增 EarthquakeNotify / TyphoonNotify 監聽
+- [x] 3.5.2 新增 DisasterWarning 監聽
+- [x] 3.5.3 新增 ReliefGameStart 監聽
+- [x] 3.5.4 新增 ReliefResult 監聽
 
 ---
 

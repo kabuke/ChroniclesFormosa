@@ -20,6 +20,12 @@ var (
 	DefaultFont font.Face
 	// Tilesets 存儲不同來源的瓦片集 [name]map[index]*ebiten.Image
 	Tilesets map[string]map[int]*ebiten.Image
+
+	// 瓦片索引定義 (基於 1024px，即 64 欄)
+	TileGrass    = 65  // Row 1, Col 1 (中心草地)
+	TileWater    = 68  // Row 1, Col 4 (中心海洋)
+	TileMountain = 1174 // Row 18, Col 22 (山脈/褐色岩石)
+	TileSand     = 471  // Row 7, Col 23 (沙灘/淺色土)
 )
 
 // LoadAssets 初始化並載入核心資源

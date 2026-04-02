@@ -30,6 +30,8 @@ func HandleEnvelope(env *pb.Envelope, s *session.UserSession) {
 		HandleDiplomacyAction(payload.Diplomacy, s)
 	case *pb.Envelope_MoveReq:
 		HandleAoiUpdate(payload.MoveReq, s)
+	case *pb.Envelope_Disaster:
+		HandleDisasterAction(payload.Disaster, s)
 	default:
 		log.Printf("[Handler] Received unhandled Envelope Action: %v", payload)
 	}

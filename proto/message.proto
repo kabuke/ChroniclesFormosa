@@ -116,12 +116,22 @@ message Envelope {
         MapSync map_sync = 61;
         ClientMoveReq move_req = 70;
         AOIBroadcast aoi_broadcast = 71;
+
+        // 時間同步
+        TimeSync time_sync = 80;
     }
 }
 
 // ═══════════════════════════════════════
 // 業務訊息：認證與玩家
 // ═══════════════════════════════════════
+
+message TimeSync {
+    int32 year = 1;
+    int32 month = 2;
+    int32 day = 3;
+    string time_of_day = 4;
+}
 
 message Login {
     string username = 1;
@@ -333,6 +343,30 @@ message VillageStabilityReq {
 // 業務訊息：天災系統
 // ═══════════════════════════════════════
 
+enum DisasterType {
+    DISASTER_EARTHQUAKE = 0;
+    DISASTER_TYPHOON = 1;
+    DISASTER_PLAGUE = 2;
+}
+
+enum TyphoonPhase {
+    PHASE_WARNING = 0;
+    PHASE_LANDING = 1;
+    PHASE_FADING = 2;
+}
+
+enum ObstacleType {
+    OBSTACLE_LANDSLIDE = 0;
+    OBSTACLE_BANDIT = 1;
+    OBSTACLE_BROKEN_BRIDGE = 2;
+}
+
+enum ReliefGrade {
+    GRADE_PERFECT = 0;
+    GRADE_GOOD = 1;
+    GRADE_FAIL = 2;
+}
+
 message DisasterAction {
     oneof action {
         EarthquakeNotify earthquake = 1;
@@ -342,27 +376,38 @@ message DisasterAction {
         ReliefDonateReq relief_donate = 5;
         ReliefRouteSubmit relief_route = 6;
         ReliefResult relief_result = 7;
+        DebugTriggerReq debug_trigger = 8;
     }
+}
+
+message DebugTriggerReq {
+    int32 disaster_type = 1; // 0=無害地震, 1=有害地震, 2=颱風
 }
 
 message EarthquakeNotify {
     int64 epicenter_tile_id = 1;
     float magnitude = 2;
     repeated int64 affected_villages = 3;
+    string epicenter_name = 4;
 }
 
 message TyphoonNotify {
     repeated int64 path_tiles = 1;
     float intensity = 2;
+    TyphoonPhase phase = 3;
+    repeated int64 affected_villages = 4;
+    string path_desc = 5;
 }
 
 message DisasterWarning {
-    string message = 1;
-    int32 countdown_seconds = 2;
+    DisasterType type = 1;
+    string message = 2;
+    int32 countdown_seconds = 3;
 }
 
 message ReliefGameStart {
     int64 disaster_id = 1;
+    repeated int64 affected_villages = 2;
 }
 
 message ReliefDonateReq {
@@ -373,10 +418,16 @@ message ReliefRouteSubmit {
     repeated int64 waypoints = 1; // 牛車路線
 }
 
+message ReliefObstacle {
+    int64 tile_id = 1;
+    ObstacleType type = 2;
+}
+
 message ReliefResult {
     bool success = 1;
     int32 score = 2;
     int32 reward = 3;
+    ReliefGrade grade = 4;
 }
 
 // ═══════════════════════════════════════

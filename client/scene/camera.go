@@ -41,7 +41,7 @@ func (c *Camera) Update() {
 		_, wy := ebiten.Wheel()
 		if wy > 0 { c.Zoom *= 1.1 }
 		if wy < 0 { c.Zoom /= 1.1 }
-		if c.Zoom < 0.1 { c.Zoom = 0.1 }
+		if c.Zoom < 0.02 { c.Zoom = 0.02 }
 		if c.Zoom > 3.0 { c.Zoom = 3.0 }
 	}
 

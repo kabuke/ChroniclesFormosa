@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/kabuke/ChroniclesFormosa/server/database"
+	"github.com/kabuke/ChroniclesFormosa/server/logic/disaster"
 	"github.com/kabuke/ChroniclesFormosa/server/logic/faction"
 	"github.com/kabuke/ChroniclesFormosa/server/logic/social"
 	"github.com/kabuke/ChroniclesFormosa/server/logic/stamina"
@@ -32,6 +33,7 @@ func main() {
 	go village.StartEconomyEngine()
 	go social.StartTensionEngine()
 	go stamina.StartStaminaTicker()
+	disaster.StartDisasterTimer()
 	
 	// 5. 陣營平衡初始化
 	faction.RebalanceFactions()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -154,10 +155,33 @@ func main() {
 			},
 		})
 	}
+	ui.OnReliefDonateSubmit = func(amount int32) {
+		netClient.SendEnvelope(&pb.Envelope{
+			Payload: &pb.Envelope_Disaster{
+				Disaster: &pb.DisasterAction{Action: &pb.DisasterAction_ReliefDonate{ReliefDonate: &pb.ReliefDonateReq{ResourceAmount: amount}}},
+			},
+		})
+	}
 	ui.OnDiplomacySubmit = func(targetID int64, dType pb.DiplomacyType) {
 		netClient.SendEnvelope(&pb.Envelope{
 			Payload: &pb.Envelope_Diplomacy{
 				Diplomacy: &pb.DiplomacyAction{Action: &pb.DiplomacyAction_Req{Req: &pb.DiplomacyReq{Type: dType, TargetVillageId: targetID}}},
+			},
+		})
+	}
+
+	ui.OnReliefSubmit = func(waypoints []ui.Waypoint) {
+		var route []int64
+		for _, w := range waypoints {
+			route = append(route, int64(w.X*1000 + w.Y)) // Simple encoding
+		}
+		netClient.SendEnvelope(&pb.Envelope{
+			Payload: &pb.Envelope_Disaster{
+				Disaster: &pb.DisasterAction{
+					Action: &pb.DisasterAction_ReliefRoute{
+						ReliefRoute: &pb.ReliefRouteSubmit{Waypoints: route},
+					},
+				},
 			},
 		})
 	}
@@ -184,6 +208,60 @@ func main() {
 		if stamina := env.GetStamina(); stamina != nil { ui.GlobalNavbar.UpdateStamina(stamina.Current, stamina.Max); return }
 		if buff := env.GetFactionBuff(); buff != nil { ui.GlobalNavbar.UpdateBuff(buff.Multiplier); return }
 		
+		if timeSync := env.GetTimeSync(); timeSync != nil {
+			ui.GlobalNavbar.TimeSyncStr = fmt.Sprintf("%04d年%02d月%02d日 %s", timeSync.Year, timeSync.Month, timeSync.Day, timeSync.TimeOfDay)
+			return
+		}
+
+		if dAct := env.GetDisaster(); dAct != nil {
+			switch act := dAct.Action.(type) {
+			case *pb.DisasterAction_Warning:
+				ui.GlobalNavbar.SetWarning(act.Warning.Message)
+				ui.GlobalToastManager.Warning(act.Warning.Message)
+			case *pb.DisasterAction_Earthquake:
+				mag := act.Earthquake.Magnitude
+				if mag >= 3.0 {
+					ui.GlobalScreenShake.Trigger(float64(mag*3.0), 3.0)
+					ui.GlobalExplosion.Trigger(float64(config.AppConfig.ScreenWidth/2), float64(config.AppConfig.ScreenHeight/2), 50)
+					ui.GlobalToastManager.Error(fmt.Sprintf("發生規模 %.1f 強烈地震！震央：%s，受害庄頭數：%d", mag, act.Earthquake.EpicenterName, len(act.Earthquake.AffectedVillages)))
+				} else {
+					// 輕微晃動 (無害)
+					ui.GlobalScreenShake.Trigger(float64(mag*1.5), 1.0)
+				}
+			case *pb.DisasterAction_Typhoon:
+				ui.GlobalTyphoon.SetActive(true, act.Typhoon.Intensity)
+				ui.GlobalToastManager.Error(fmt.Sprintf("颱風登陸！路徑：%s，受害庄頭數：%d", act.Typhoon.PathDesc, len(act.Typhoon.AffectedVillages)))
+			case *pb.DisasterAction_ReliefStart:
+				affected := false
+				for _, vID := range act.ReliefStart.AffectedVillages {
+					if ui.GlobalVillagePanel.Village != nil && ui.GlobalVillagePanel.Village.VillageId == vID {
+						affected = true
+						break
+					}
+				}
+				
+				ui.GlobalReliefPanel.SetAffected(affected)
+
+				if affected {
+					ui.GlobalToastManager.Info("您的庄頭受災！進入救災階段。")
+					if ui.GlobalVillagePanel.Village != nil && ui.GlobalVillagePanel.Village.Headman == sm.CurrentName() {
+						ui.GlobalReliefPanel.Show(act.ReliefStart.DisasterId)
+					}
+				}
+			case *pb.DisasterAction_ReliefResult:
+				ui.GlobalReliefPanel.Hide()
+				ui.GlobalReliefPanel.SetAffected(false)
+				ui.GlobalTyphoon.SetActive(false, 0) // Clear typhoon if active
+				msg := fmt.Sprintf("救災結算 - 評分: %d, 獲得資源: %d", act.ReliefResult.Score, act.ReliefResult.Reward)
+				if act.ReliefResult.Success {
+					ui.GlobalToastManager.Success(msg)
+				} else {
+					ui.GlobalToastManager.Error(msg)
+				}
+			}
+			return
+		}
+
 		if vAct := env.GetVillage(); vAct != nil {
 			switch act := vAct.Action.(type) {
 			case *pb.VillageAction_ListResp:

@@ -43,6 +43,7 @@ var OnStabilitySubmit func(opType pb.StabilityOpType)
 var OnElectSubmit func()
 var OnJoinSubmit func(villageID int64)
 var OnImpeachSubmit func()
+var OnReliefDonateSubmit func(amount int32)
 
 func (p *VillagePanel) Update() {
 	if !p.Visible { return }
@@ -94,8 +95,12 @@ func (p *VillagePanel) Update() {
 				if GlobalNavbar.Stamina >= 10 && OnStabilitySubmit != nil { OnStabilitySubmit(pb.StabilityOpType_OP_RITUAL) }
 			}
 			// [彈劾]
-			if p.isPointIn(float32(mx), float32(my), p.X+320, btnY, 80, 35) {
+			if p.isPointIn(float32(mx), float32(my), p.X+320, btnY, 60, 35) {
 				if OnImpeachSubmit != nil { OnImpeachSubmit() }
+			}
+			// [捐獻]
+			if GlobalReliefPanel.IsAffected && p.isPointIn(float32(mx), float32(my), p.X+390, btnY, 60, 35) {
+				if GlobalNavbar.Stamina >= 10 && OnReliefDonateSubmit != nil { OnReliefDonateSubmit(10) }
 			}
 		} else {
 			if p.SelectedIdx != -1 && p.isPointIn(float32(mx), float32(my), p.X+20, btnY, p.W-40, 35) {
@@ -150,7 +155,10 @@ func (p *VillagePanel) drawManage(screen *ebiten.Image) {
 	p.drawButton(screen, p.X+20, btnY, 90, "推舉", color.RGBA{100, 100, 100, 255}, GlobalNavbar.Stamina < 5)
 	p.drawButton(screen, p.X+120, btnY, 90, "辦桌", color.RGBA{178, 34, 34, 255}, GlobalNavbar.Stamina < 10)
 	p.drawButton(screen, p.X+220, btnY, 90, "祭祀", color.RGBA{46, 139, 87, 255}, GlobalNavbar.Stamina < 10)
-	p.drawButton(screen, p.X+320, btnY, 80, "彈劾", color.RGBA{50, 50, 50, 255}, false)
+	p.drawButton(screen, p.X+320, btnY, 60, "彈劾", color.RGBA{50, 50, 50, 255}, false)
+	if GlobalReliefPanel.IsAffected {
+		p.drawButton(screen, p.X+390, btnY, 60, "捐獻", color.RGBA{0, 150, 255, 255}, GlobalNavbar.Stamina < 10)
+	}
 }
 
 func (p *VillagePanel) drawList(screen *ebiten.Image) {
