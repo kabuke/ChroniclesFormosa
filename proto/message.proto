@@ -248,6 +248,8 @@ message VillageAction {
         VillageStabilityReq stability_req = 11;
         VillageListReq list_req = 12;
         VillageListResp list_resp = 13;
+        VillageAssignRoleReq assign_role_req = 14;
+        VillageAssignRoleResp assign_role_resp = 15;
     }
 }
 
@@ -310,6 +312,17 @@ message VillageImpeachReq {
 }
 
 message VillageImpeachResp {
+    bool success = 1;
+    string message = 2;
+}
+
+message VillageAssignRoleReq {
+    int64 village_id = 1;
+    string target_username = 2;
+    int32 target_role = 3; // 2=墾首, 3=武師, 4=商賈, 0=平民
+}
+
+message VillageAssignRoleResp {
     bool success = 1;
     string message = 2;
 }
@@ -411,11 +424,16 @@ message ReliefGameStart {
 }
 
 message ReliefDonateReq {
-    int32 resource_amount = 1;
+    int64 target_village_id = 1;
+    int32 resource_amount = 2;
 }
 
 message ReliefRouteSubmit {
-    repeated int64 waypoints = 1; // 牛車路線
+    int64 target_village_id = 1;
+    repeated int64 waypoints = 2; // 牛車路線
+    int32 time_taken_ms = 3;      // 耗時毫秒
+    float coverage_percent = 4;   // 覆蓋率 (0.0~1.0)
+    float route_distance = 5;     // 路線總像素長度
 }
 
 message ReliefObstacle {

@@ -35,7 +35,7 @@ func TriggerPlague() {
 				Action: &pb.DisasterAction_Warning{
 					Warning: &pb.DisasterWarning{
 						Type:             pb.DisasterType_DISASTER_PLAGUE,
-						Message:          "瘟疫爆發！" + v.Name + " 發生嚴重傳染病。",
+						Message:          "WARNING_PLAGUE|" + v.Name,
 						CountdownSeconds: 0,
 					},
 				},

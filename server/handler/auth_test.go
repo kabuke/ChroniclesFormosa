@@ -27,12 +27,7 @@ func TestHandleRegisterAndLogin(t *testing.T) {
 
 	// 用於捕捉回傳的封包
 	var lastEnv *pb.Envelope
-	sess.TriggerFlush = func() {
-		// 捕捉 Outbox 中的最後一個訊息
-		if len(sess.Outbox) > 0 {
-			lastEnv = sess.Outbox[len(sess.Outbox)-1]
-		}
-	}
+	sess.TriggerFlush = func() {}
 
 	// 2. 測試註冊
 	regReq := &pb.Register{
@@ -43,6 +38,7 @@ func TestHandleRegisterAndLogin(t *testing.T) {
 	}
 	HandleRegister(regReq, sess)
 
+	lastEnv = sess.Outbox[len(sess.Outbox)-1]
 	if lastEnv == nil || lastEnv.GetLoginResponse() == nil {
 		t.Fatal("Expected LoginResponse after registration")
 	}
@@ -57,8 +53,17 @@ func TestHandleRegisterAndLogin(t *testing.T) {
 	}
 	HandleLogin(loginReq, sess)
 
-	if !lastEnv.GetLoginResponse().Success {
-		t.Errorf("Login failed: %s", lastEnv.GetLoginResponse().Message)
+	var loginEnv *pb.Envelope
+	for i := len(sess.Outbox) - 1; i >= 0; i-- {
+		if sess.Outbox[i].GetLoginResponse() != nil {
+			loginEnv = sess.Outbox[i]
+			break
+		}
+	}
+	if loginEnv == nil {
+		t.Fatalf("Login failed: loginEnv is nil, HandleLogin did not output LoginResponse")
+	} else if !loginEnv.GetLoginResponse().Success {
+		t.Errorf("Login failed: %s", loginEnv.GetLoginResponse().Message)
 	}
 	if sess.Username != "testuser123" {
 		t.Errorf("Expected session username 'testuser123', got '%s'", sess.Username)
@@ -70,7 +75,13 @@ func TestHandleRegisterAndLogin(t *testing.T) {
 		Password: "wrongpassword",
 	}
 	HandleLogin(loginReqWrong, sess)
-	if lastEnv.GetLoginResponse().Success {
+	for i := len(sess.Outbox) - 1; i >= 0; i-- {
+		if sess.Outbox[i].GetLoginResponse() != nil {
+			loginEnv = sess.Outbox[i]
+			break
+		}
+	}
+	if loginEnv.GetLoginResponse().Success {
 		t.Error("Expected login failure for wrong password")
 	}
 }

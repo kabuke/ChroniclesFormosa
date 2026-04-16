@@ -20,6 +20,7 @@ type Navbar struct {
 	Stamina     int32
 	MaxStamina  int32
 	FactionBuff float64
+	Username    string // 當前登入的使用者帳號
 
 	TimeSyncStr string
 	WarningMsg  string

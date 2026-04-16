@@ -12,10 +12,6 @@ import (
 
 // HandleReliefDonate 處理庄民捐獻精力
 func HandleReliefDonate(s *session.UserSession, req *pb.ReliefDonateReq) (*pb.Envelope, error) {
-	if s.VillageID == 0 {
-		return nil, fmt.Errorf("未加入庄頭")
-	}
-
 	pRepo := repo.NewPlayerRepo()
 	p, err := pRepo.FindByUsername(s.Username)
 	if err != nil { return nil, err }
@@ -27,38 +23,49 @@ func HandleReliefDonate(s *session.UserSession, req *pb.ReliefDonateReq) (*pb.En
 	_ = pRepo.Update(p)
 	stamina.SyncStamina(s, p)
 
-	log.Printf("[Relief] 玩家 %s 捐獻了 %d 精力用於救災", p.Nickname, req.ResourceAmount)
+	vRepo := repo.NewVillageRepo()
+	targetV, err := vRepo.FindByID(req.TargetVillageId)
+	if err == nil {
+		targetV.Food += int64(req.ResourceAmount * 2) // Donate stamina converts to food
+		targetV.Loyalty += 1
+		if targetV.Loyalty > 100 { targetV.Loyalty = 100 }
+		_ = vRepo.Update(targetV)
+	}
 
-	// 這裡可以把捐獻紀錄存起來，或是透過頻道通知庄長
-	return nil, nil // 捐獻成功，不一定要立即回傳特定 UI，可以透過 Toast 處理
+	log.Printf("[Relief] 玩家 %s 向庄頭 %d 捐獻了 %d 精力用於救災", p.Nickname, req.TargetVillageId, req.ResourceAmount)
+
+	return nil, nil
 }
 
 // HandleReliefRouteSubmit 處理庄長提交牛車路線
 func HandleReliefRouteSubmit(s *session.UserSession, req *pb.ReliefRouteSubmit) (*pb.Envelope, error) {
-	if s.VillageID == 0 {
-		return nil, fmt.Errorf("未加入庄頭")
-	}
-
 	vRepo := repo.NewVillageRepo()
-	v, err := vRepo.FindByID(s.VillageID)
+	v, err := vRepo.FindByID(req.TargetVillageId)
 	if err != nil { return nil, err }
 
 	if v.Headman != s.Username {
-		return nil, fmt.Errorf("只有庄長能提交救災路線")
+		return nil, fmt.Errorf("只有受災庄頭的庄長能提交救災路線")
 	}
 
-	// 1. 評分演算法：根據路線節點數量 (越少越好) 與 覆蓋的災區數量
-	waypoints := req.Waypoints
-	score := 100
-	if len(waypoints) > 10 {
-		score -= (len(waypoints) - 10) * 5
+	// 1. 評分演算法：根據 覆蓋率、耗時、路線長度計分
+	coverageScore := int(req.CoveragePercent * 100)
+	timePenalty := 0
+	if req.TimeTakenMs > 15000 { // 15秒以上開始扣分
+		timePenalty = int((req.TimeTakenMs - 15000) / 1000) * 3
 	}
+	distPenalty := 0
+	if req.RouteDistance > 1500 { // 1500 像素長以上開始扣分
+		distPenalty = int((req.RouteDistance - 1500) / 100) * 2
+	}
+
+	score := coverageScore - timePenalty - distPenalty
 	if score < 0 { score = 0 }
+	if score > 100 { score = 100 }
 
 	var grade pb.ReliefGrade
-	if score >= 90 {
+	if score >= 80 {
 		grade = pb.ReliefGrade_GRADE_PERFECT
-	} else if score >= 60 {
+	} else if score >= 50 {
 		grade = pb.ReliefGrade_GRADE_GOOD
 	} else {
 		grade = pb.ReliefGrade_GRADE_FAIL

@@ -28,6 +28,8 @@ func HandleVillageAction(action *pb.VillageAction, s *session.UserSession) {
 		handleVillageStabilityReq(req.StabilityReq, s)
 	case *pb.VillageAction_ListReq:
 		handleVillageListReq(req.ListReq, s)
+	case *pb.VillageAction_AssignRoleReq:
+		handleVillageAssignRoleReq(req.AssignRoleReq, s)
 	default:
 		log.Println("[VillageHandler] Unhandled VillageAction:", req)
 	}
@@ -157,6 +159,36 @@ func handleVillageImpeachReq(req *pb.VillageImpeachReq, s *session.UserSession) 
 	}
 	broadcastSystemMsg(msg)
 	handleVillageInfoReq(&pb.VillageInfoReq{VillageId: req.VillageId}, s)
+}
+
+func handleVillageAssignRoleReq(req *pb.VillageAssignRoleReq, s *session.UserSession) {
+	msg, err := village_logic.AssignRole(s.Username, req.TargetUsername, req.VillageId, req.TargetRole)
+	
+	resp := &pb.VillageAssignRoleResp{
+		Success: err == nil,
+		Message: msg,
+	}
+	
+	if err != nil {
+		resp.Message = err.Error()
+	} else {
+		// 若成功，向本庄廣播該事件
+		broadcastSystemMsg(msg)
+		// 通知客戶端刷新成員列表
+		handleVillageMemberListReq(&pb.VillageMemberListReq{VillageId: req.VillageId}, s)
+	}
+
+	env := &pb.Envelope{
+		Payload: &pb.Envelope_Village{
+			Village: &pb.VillageAction{
+				Action: &pb.VillageAction_AssignRoleResp{
+					AssignRoleResp: resp,
+				},
+			},
+		},
+	}
+	s.QueueMessage(env)
+	if s.TriggerFlush != nil { s.TriggerFlush() }
 }
 
 func sendSystemMsg(s *session.UserSession, msg string) {

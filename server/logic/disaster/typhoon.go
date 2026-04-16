@@ -3,6 +3,7 @@ package disaster
 import (
 	"log"
 	"math/rand"
+	"time"
 
 	pb "github.com/kabuke/ChroniclesFormosa/resource"
 	"github.com/kabuke/ChroniclesFormosa/server/database"
@@ -10,7 +11,7 @@ import (
 	"github.com/kabuke/ChroniclesFormosa/server/session"
 )
 
-func TriggerTyphoon() {
+var TriggerTyphoon = func() {
 	log.Println("[Disaster] 🌀 Typhoon Landed!")
 
 	db := database.GetDB()
@@ -62,4 +63,24 @@ func TriggerTyphoon() {
 
 	// 觸發救災階段
 	go triggerReliefPhase(affected)
+
+	// 依照遊戲時間流速，颱風經過約需 1~2 個遊戲天 (1440~2880遊戲分鐘)
+	// 根據 TimeRatio: 1 實秒 = 20 遊戲分 -> 72~144 實秒
+	durationSecs := 72 + rand.Intn(73)
+	time.AfterFunc(time.Duration(durationSecs)*time.Second, func() {
+		log.Printf("[Disaster] ☀️ Typhoon dissipated after %d real seconds.", durationSecs)
+		clearEnv := &pb.Envelope{
+			Payload: &pb.Envelope_Disaster{
+				Disaster: &pb.DisasterAction{
+					Action: &pb.DisasterAction_Typhoon{
+						Typhoon: &pb.TyphoonNotify{
+							Intensity: 0.0, // 強度 0 作為清除天氣動畫的信號
+							PathDesc:  "颱風已經遠離，天氣放晴",
+						},
+					},
+				},
+			},
+		}
+		session.GetManager().AddToForwardQueue(clearEnv)
+	})
 }

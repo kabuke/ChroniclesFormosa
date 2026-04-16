@@ -1,7 +1,6 @@
 package disaster
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -21,7 +20,7 @@ func StartDisasterTimer() {
 	// 台灣三國誌第一賽季起始時間: 現實的 4 月 2 日 00:00:00 (以當前年份計算)
 	now := time.Now()
 	SeasonStart = time.Date(now.Year(), 4, 2, 0, 0, 0, 0, time.Local)
-	
+
 	// 如果當前時間早於 4/2，則往前推一年作為賽季起點
 	if now.Before(SeasonStart) {
 		SeasonStart = time.Date(now.Year()-1, 4, 2, 0, 0, 0, 0, time.Local)
@@ -29,18 +28,20 @@ func StartDisasterTimer() {
 
 	// 遊戲內起始時間: 1600 年 1 月 1 日 00:00:00
 	baseInGameTime := time.Date(1600, 1, 1, 0, 0, 0, 0, time.UTC)
-	
+
 	// 每 1 秒 (現實時間) 推進時間
 	ticker := time.NewTicker(1 * time.Second)
 	go func() {
 		for range ticker.C {
 			// 計算經過的現實時間
 			elapsedReal := time.Since(SeasonStart).Seconds()
-			if elapsedReal < 0 { elapsedReal = 0 }
-			
+			if elapsedReal < 0 {
+				elapsedReal = 0
+			}
+
 			// 換算遊戲內時間
-			InGameTime = baseInGameTime.Add(time.Duration(elapsedReal * TimeRatio) * time.Second)
-			
+			InGameTime = baseInGameTime.Add(time.Duration(elapsedReal*TimeRatio) * time.Second)
+
 			advanceTime()
 		}
 	}()
@@ -105,8 +106,7 @@ func evaluateDisaster(month time.Month, timeOfDay string) {
 
 	// 1. 判定颱風
 	if probTyphoon > 0 && r < probTyphoon {
-		msg := fmt.Sprintf("【%04d年%02d月 %s】海上颱風警報！強烈颱風即將登陸，請盡速儲備物資並準備救災。", InGameTime.Year(), month, timeOfDay)
-		triggerWarning(pb.DisasterType_DISASTER_TYPHOON, msg)
+		triggerWarning(pb.DisasterType_DISASTER_TYPHOON, "WARNING_TYPHOON")
 		time.AfterFunc(30*time.Second, func() {
 			TriggerTyphoon()
 		})
@@ -115,8 +115,7 @@ func evaluateDisaster(month time.Month, timeOfDay string) {
 
 	// 2. 判定有害地震
 	if r < probTyphoon+probHarmfulEQ {
-		msg := fmt.Sprintf("【%04d年%02d月 %s】地牛翻身預警！預計不久將發生強烈有感地震，請各庄頭做好準備。", InGameTime.Year(), month, timeOfDay)
-		triggerWarning(pb.DisasterType_DISASTER_EARTHQUAKE, msg)
+		triggerWarning(pb.DisasterType_DISASTER_EARTHQUAKE, "WARNING_EARTHQUAKE")
 		time.AfterFunc(30*time.Second, func() {
 			TriggerEarthquake(true) // 有害
 		})
@@ -129,9 +128,9 @@ func evaluateDisaster(month time.Month, timeOfDay string) {
 	}
 }
 
-func triggerWarning(disasterType pb.DisasterType, msg string) {
+var triggerWarning = func(disasterType pb.DisasterType, msg string) {
 	log.Printf("[Disaster] ⚠️ Warning: %s", msg)
-	
+
 	env := &pb.Envelope{
 		Payload: &pb.Envelope_Disaster{
 			Disaster: &pb.DisasterAction{
@@ -145,6 +144,6 @@ func triggerWarning(disasterType pb.DisasterType, msg string) {
 			},
 		},
 	}
-	
+
 	session.GetManager().AddToForwardQueue(env)
 }

@@ -71,6 +71,7 @@
 5. 更新 task.md 勾選完成項目
 6. 如有架構變更 → 更新 DDD.md 修訂紀錄
 7. 如有遊戲設計變更 → 更新 GDD.md 修訂紀錄
+8. 任何架構問題前先讀 graphify-out/GRAPH_REPORT.md
 ```
 
 ---

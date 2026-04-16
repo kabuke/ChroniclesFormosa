@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/kabuke/ChroniclesFormosa/server/database"
@@ -73,29 +74,43 @@ func SeedVillages(db *gorm.DB) {
 		db.Exec("DELETE FROM sqlite_sequence WHERE name='villages'")
 
 		villages := []model.Village{
-			{ID: 1, Name: "雞籠 (Keelung)", X: 65, Y: 10, FactionID: 1, Level: 1},
-			{ID: 2, Name: "艋舺 (Bangka)", X: 55, Y: 15, FactionID: 1, Level: 1},
-			{ID: 3, Name: "竹塹 (Hsinchu)", X: 45, Y: 25, FactionID: 0, Level: 1},
-			{ID: 4, Name: "大甲 (Dajia)", X: 40, Y: 35, FactionID: 0, Level: 1},
-			{ID: 5, Name: "鹿港 (Lukang)", X: 35, Y: 45, FactionID: 2, Level: 1},
-			{ID: 6, Name: "北港 (Beigang)", X: 28, Y: 50, FactionID: 2, Level: 1},
-			{ID: 7, Name: "諸羅 (Chiayi)", X: 30, Y: 55, FactionID: 1, Level: 1},
-			{ID: 8, Name: "府城 (Anping)", X: 25, Y: 70, FactionID: 1, Level: 2},
-			{ID: 9, Name: "打狗 (Dagao)", X: 28, Y: 85, FactionID: 2, Level: 1},
-			{ID: 10, Name: "阿猴 (Pingtung)", X: 32, Y: 90, FactionID: 3, Level: 1},
-			{ID: 11, Name: "澎湖 (Penghu)", X: 5, Y: 50, FactionID: 1, Level: 1},
-			{ID: 12, Name: "蛤仔難 (Yilan)", X: 75, Y: 25, FactionID: 0, Level: 1},
-			{ID: 13, Name: "卑南 (Taitung)", X: 60, Y: 85, FactionID: 3, Level: 1},
-			{ID: 14, Name: "花蓮港 (Hualien)", X: 70, Y: 55, FactionID: 3, Level: 1},
-			{ID: 15, Name: "瑯嶠 (Hengchun)", X: 35, Y: 98, FactionID: 0, Level: 1},
-			{ID: 16, Name: "埔里社 (Puli)", X: 50, Y: 50, FactionID: 0, Level: 1},
+			{ID: 1, Name: "雞籠 (Keelung)", X: 64, Y: 10, FactionID: 1, Level: 1},
+			{ID: 2, Name: "艋舺 (Bangka)", X: 58, Y: 15, FactionID: 1, Level: 1},
+			{ID: 3, Name: "竹塹 (Hsinchu)", X: 48, Y: 25, FactionID: 0, Level: 1},
+			{ID: 4, Name: "大甲 (Dajia)", X: 42, Y: 35, FactionID: 0, Level: 1},
+			{ID: 5, Name: "鹿港 (Lukang)", X: 36, Y: 45, FactionID: 2, Level: 1},
+			{ID: 6, Name: "北港 (Beigang)", X: 35, Y: 52, FactionID: 2, Level: 1},
+			{ID: 7, Name: "諸羅 (Chiayi)", X: 40, Y: 55, FactionID: 1, Level: 1},
+			{ID: 8, Name: "府城 (Anping)", X: 39, Y: 65, FactionID: 1, Level: 2},
+			{ID: 9, Name: "打狗 (Dagao)", X: 43, Y: 75, FactionID: 2, Level: 1},
+			{ID: 10, Name: "阿猴 (Pingtung)", X: 47, Y: 80, FactionID: 3, Level: 1},
+			{ID: 11, Name: "澎湖 (Penghu)", X: 15, Y: 53, FactionID: 1, Level: 1},
+			{ID: 12, Name: "蛤仔難 (Yilan)", X: 65, Y: 20, FactionID: 0, Level: 1},
+			{ID: 13, Name: "卑南 (Taitung)", X: 56, Y: 70, FactionID: 3, Level: 1},
+			{ID: 14, Name: "花蓮港 (Hualien)", X: 65, Y: 45, FactionID: 3, Level: 1},
+			{ID: 15, Name: "瑯嶠 (Hengchun)", X: 51, Y: 95, FactionID: 0, Level: 1},
+			{ID: 16, Name: "埔里社 (Puli)", X: 50, Y: 45, FactionID: 0, Level: 1},
 		}
 
 		for _, v := range villages {
 			db.Create(&v)
+
+			// 植入 10 名假村民作為測試對象
+			for i := 1; i <= 10; i++ {
+				botName := fmt.Sprintf("bot_v%d_%02d", v.ID, i)
+				bot := model.Player{
+					Username:    botName,
+					PasswordHash: "dummy", // 機器人不需登入
+					Nickname:    fmt.Sprintf("村民%d號", i),
+					FactionID:   v.FactionID,
+					VillageID:   int64(v.ID),
+					VillageRole: 0,
+				}
+				db.Where(model.Player{Username: botName}).FirstOrCreate(&bot)
+			}
 		}
 		
-		db.Exec("UPDATE players SET village_id = 0")
-		log.Println("[Database] 🛡️ All players' village assignments reset for re-testing.")
+		db.Exec("UPDATE players SET village_id = 0 WHERE username NOT LIKE 'bot_%'")
+		log.Println("[Database] 🛡️ All players' village assignments reset (except bots) for re-testing.")
 	}
 }

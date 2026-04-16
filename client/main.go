@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -155,10 +156,14 @@ func main() {
 			},
 		})
 	}
-	ui.OnReliefDonateSubmit = func(amount int32) {
+	ui.OnAssignRoleSubmit = func(targetUsername string, targetRole int32) {
 		netClient.SendEnvelope(&pb.Envelope{
-			Payload: &pb.Envelope_Disaster{
-				Disaster: &pb.DisasterAction{Action: &pb.DisasterAction_ReliefDonate{ReliefDonate: &pb.ReliefDonateReq{ResourceAmount: amount}}},
+			Payload: &pb.Envelope_Village{
+				Village: &pb.VillageAction{Action: &pb.VillageAction_AssignRoleReq{AssignRoleReq: &pb.VillageAssignRoleReq{
+					VillageId: ui.GlobalVillagePanel.Village.VillageId, 
+					TargetUsername: targetUsername, 
+					TargetRole: targetRole,
+				}}},
 			},
 		})
 	}
@@ -170,18 +175,19 @@ func main() {
 		})
 	}
 
-	ui.OnReliefSubmit = func(waypoints []ui.Waypoint) {
-		var route []int64
+	ui.OnReliefSubmit = func(waypoints []ui.Waypoint, timeMs int32, coverage float32, dist float32, targetID int64) {
+		req := &pb.ReliefRouteSubmit{
+			TargetVillageId: targetID,
+			TimeTakenMs:     timeMs,
+			CoveragePercent: coverage,
+			RouteDistance:   dist,
+		}
 		for _, w := range waypoints {
-			route = append(route, int64(w.X*1000 + w.Y)) // Simple encoding
+			req.Waypoints = append(req.Waypoints, int64(w.X), int64(w.Y))
 		}
 		netClient.SendEnvelope(&pb.Envelope{
 			Payload: &pb.Envelope_Disaster{
-				Disaster: &pb.DisasterAction{
-					Action: &pb.DisasterAction_ReliefRoute{
-						ReliefRoute: &pb.ReliefRouteSubmit{Waypoints: route},
-					},
-				},
+				Disaster: &pb.DisasterAction{Action: &pb.DisasterAction_ReliefRoute{ReliefRoute: req}},
 			},
 		})
 	}
@@ -216,21 +222,61 @@ func main() {
 		if dAct := env.GetDisaster(); dAct != nil {
 			switch act := dAct.Action.(type) {
 			case *pb.DisasterAction_Warning:
-				ui.GlobalNavbar.SetWarning(act.Warning.Message)
-				ui.GlobalToastManager.Warning(act.Warning.Message)
+				wMsg := act.Warning.Message
+				if act.Warning.Type == pb.DisasterType_DISASTER_PLAGUE {
+					parts := strings.Split(wMsg, "|")
+					if len(parts) == 2 {
+						wMsg = fmt.Sprintf(i18n.Global.GetText(parts[0]), parts[1])
+					}
+				} else {
+					wMsg = i18n.Global.GetText(wMsg)
+				}
+				ui.GlobalNavbar.SetWarning(wMsg)
+				ui.GlobalToastManager.Warning(wMsg)
+				asset.PlaySFX("sfx_warning.wav")
 			case *pb.DisasterAction_Earthquake:
 				mag := act.Earthquake.Magnitude
+				scene.CurrentDisaster.Active = true
+				scene.CurrentDisaster.Type = pb.DisasterType_DISASTER_EARTHQUAKE
+				scene.CurrentDisaster.EpicenterTileID = act.Earthquake.EpicenterTileId
+				scene.CurrentDisaster.EpicenterName = act.Earthquake.EpicenterName
+				scene.CurrentDisaster.Magnitude = mag
+				scene.CurrentDisaster.AnimTimer = 0
+				scene.CurrentDisaster.AffectedVillages = make(map[int64]bool)
+				for _, v := range act.Earthquake.AffectedVillages {
+					scene.CurrentDisaster.AffectedVillages[v] = true
+				}
+
 				if mag >= 3.0 {
 					ui.GlobalScreenShake.Trigger(float64(mag*3.0), 3.0)
-					ui.GlobalExplosion.Trigger(float64(config.AppConfig.ScreenWidth/2), float64(config.AppConfig.ScreenHeight/2), 50)
+					ui.GlobalExplosion.Trigger(float64(config.AppConfig.ScreenWidth/2), float64(config.AppConfig.ScreenHeight/2), 200)
 					ui.GlobalToastManager.Error(fmt.Sprintf("發生規模 %.1f 強烈地震！震央：%s，受害庄頭數：%d", mag, act.Earthquake.EpicenterName, len(act.Earthquake.AffectedVillages)))
+					asset.PlaySFX("sfx_earthquake.wav")
 				} else {
 					// 輕微晃動 (無害)
 					ui.GlobalScreenShake.Trigger(float64(mag*1.5), 1.0)
 				}
 			case *pb.DisasterAction_Typhoon:
+				if act.Typhoon.Intensity <= 0 {
+					scene.CurrentDisaster.Active = false
+					ui.GlobalTyphoon.SetActive(false, 0)
+					ui.GlobalToastManager.Success(act.Typhoon.PathDesc)
+					return
+				}
+
+				scene.CurrentDisaster.Active = true
+				scene.CurrentDisaster.Type = pb.DisasterType_DISASTER_TYPHOON
+				scene.CurrentDisaster.Intensity = act.Typhoon.Intensity
+				scene.CurrentDisaster.PathTiles = act.Typhoon.PathTiles
+				scene.CurrentDisaster.AnimTimer = 0
+				scene.CurrentDisaster.AffectedVillages = make(map[int64]bool)
+				for _, v := range act.Typhoon.AffectedVillages {
+					scene.CurrentDisaster.AffectedVillages[v] = true
+				}
+				
 				ui.GlobalTyphoon.SetActive(true, act.Typhoon.Intensity)
 				ui.GlobalToastManager.Error(fmt.Sprintf("颱風登陸！路徑：%s，受害庄頭數：%d", act.Typhoon.PathDesc, len(act.Typhoon.AffectedVillages)))
+				asset.PlaySFX("sfx_typhoon.wav")
 			case *pb.DisasterAction_ReliefStart:
 				affected := false
 				for _, vID := range act.ReliefStart.AffectedVillages {
@@ -244,19 +290,25 @@ func main() {
 
 				if affected {
 					ui.GlobalToastManager.Info("您的庄頭受災！進入救災階段。")
-					if ui.GlobalVillagePanel.Village != nil && ui.GlobalVillagePanel.Village.Headman == sm.CurrentName() {
-						ui.GlobalReliefPanel.Show(act.ReliefStart.DisasterId)
-					}
 				}
 			case *pb.DisasterAction_ReliefResult:
 				ui.GlobalReliefPanel.Hide()
 				ui.GlobalReliefPanel.SetAffected(false)
 				ui.GlobalTyphoon.SetActive(false, 0) // Clear typhoon if active
-				msg := fmt.Sprintf("救災結算 - 評分: %d, 獲得資源: %d", act.ReliefResult.Score, act.ReliefResult.Reward)
+				scene.CurrentDisaster.Active = false
+				msgStr := ""
 				if act.ReliefResult.Success {
-					ui.GlobalToastManager.Success(msg)
+					if act.ReliefResult.Grade == pb.ReliefGrade_GRADE_PERFECT {
+						msgStr = i18n.Global.GetText("RELIEF_GRADE_PERFECT")
+					} else {
+						msgStr = i18n.Global.GetText("RELIEF_GRADE_GOOD")
+					}
+					ui.GlobalToastManager.Success(msgStr)
+					asset.PlaySFX("sfx_relief_success.wav")
 				} else {
-					ui.GlobalToastManager.Error(msg)
+					msgStr = i18n.Global.GetText("RELIEF_GRADE_FAIL")
+					ui.GlobalToastManager.Error(msgStr)
+					asset.PlaySFX("sfx_relief_fail.wav")
 				}
 			}
 			return
@@ -292,6 +344,12 @@ func main() {
 				} else {
 					ui.GlobalToastManager.Error(act.JoinResp.Message)
 				}
+			case *pb.VillageAction_AssignRoleResp:
+				if act.AssignRoleResp.Success {
+					ui.GlobalToastManager.Success(act.AssignRoleResp.Message)
+				} else {
+					ui.GlobalToastManager.Error(act.AssignRoleResp.Message)
+				}
 			}
 			return
 		}
@@ -299,6 +357,7 @@ func main() {
 		if resp := env.GetLoginResponse(); resp != nil {
 			if resp.Success {
 				ui.GlobalToastManager.Success(resp.Message)
+				ui.GlobalNavbar.Username = ui.GlobalKeyboard.User // 儲存登入帳號
 				if sm.CurrentName() == "Login" { sm.SwitchTo("Map") }
 			} else { ui.GlobalToastManager.Error(resp.Message) }
 		}

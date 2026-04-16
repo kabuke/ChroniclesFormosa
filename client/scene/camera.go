@@ -59,3 +59,10 @@ func (c *Camera) WorldToScreen(wx, wy float64) (float64, float64) {
 	sy := (wy-c.Y)*c.Zoom + float64(sh)/2
 	return sx, sy
 }
+
+func (c *Camera) ScreenToWorld(sx, sy float64) (float64, float64) {
+	sw, sh := ebiten.WindowSize()
+	wx := (sx - float64(sw)/2)/c.Zoom + c.X
+	wy := (sy - float64(sh)/2)/c.Zoom + c.Y
+	return wx, wy
+}

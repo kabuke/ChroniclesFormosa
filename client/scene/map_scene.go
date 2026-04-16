@@ -88,31 +88,22 @@ func getTaiwanTerrain(gx, gy int) int {
 	// 這些點位是根據您的庄頭座標 (0-100) 與衛星圖輪廓精確匹配得出的
 	type edge struct{ y, x float64 }
 	
-	// 西岸控制線 (控制「肚子」的突出度與離島間距)
+	// 高精度西岸控制線 (完全以衛星圖每5格描點，去除不自然的圓角)
 	leftPts := []edge{
-		{2,  60}, // 北尖
-		{10, 54}, // 台北西
-		{25, 40}, // 桃園/新竹
-		{40, 26}, // 苗栗/台中
-		{55, 18}, // 彰化/南投西
-		{65, 15}, // 嘉義/雲林 (西岸最凸出點)
-		{75, 17}, // 台南/安平 (確保 25, 70 在陸地)
-		{85, 24}, // 高雄/打狗 (確保 28, 85 在陸地)
-		{90, 30}, // 屏東
-		{95, 38}, // 瑯嶠南
-		{99, 43}, // 鵝鑾鼻
+		{2, 63}, {5, 61}, {10, 58}, {15, 53}, 
+		{20, 48}, {25, 45}, {30, 42}, {35, 39}, 
+		{40, 36}, {45, 34}, {50, 32}, {55, 33}, 
+		{60, 35}, {65, 37}, {70, 39}, {75, 41}, 
+		{80, 44}, {85, 47}, {90, 49}, {95, 51}, {99, 52},
 	}
 
-	// 東岸控制線 (控制東岸直線度)
+	// 高精度東岸控制線
 	rightPts := []edge{
-		{2,  65},  // 北尖
-		{10, 71},  // 基隆 (確保 65, 10 在陸地)
-		{20, 73},  // 宜蘭 (確保 75, 25 緊貼邊緣)
-		{55, 74},  // 花蓮 (確保 70, 55 在陸地)
-		{85, 66},  // 卑南 (確保 60, 85 在陸地)
-		{92, 58},  // 恆春北
-		{96, 52},  // 瑯嶠東
-		{99, 45},  // 鵝鑾鼻
+		{2, 64}, {5, 67}, {10, 68}, {15, 70}, 
+		{20, 71}, {25, 71}, {30, 72}, {35, 72}, 
+		{40, 71}, {45, 71}, {50, 70}, {55, 68}, 
+		{60, 67}, {65, 66}, {70, 64}, {75, 61}, 
+		{80, 58}, {85, 56}, {90, 54}, {95, 53}, {99, 53},
 	}
 
 	if sy < leftPts[0].y || sy > leftPts[len(leftPts)-1].y {
@@ -134,9 +125,9 @@ func getTaiwanTerrain(gx, gy int) int {
 	rawL := lerp(leftPts)
 	rawR := lerp(rightPts)
 
-	// 海岸線微擾雜訊
-	lJitter := 1.2 * (math.Sin(sy*0.8) + math.Cos(sx*0.6))
-	rJitter := 0.5 * (math.Sin(sy*1.1) + math.Cos(sx*0.9))
+	// 拔除大幅度雜訊，採用極少量微擾以維持精密描出來的形狀
+	lJitter := 0.2*math.Cos(sy*2.0)
+	rJitter := 0.2*math.Sin(sy*2.0)
 
 	lEdge := rawL + lJitter
 	rEdge := rawR + rJitter
@@ -154,8 +145,8 @@ func getTaiwanTerrain(gx, gy int) int {
 	if posRatio < 0.05 || posRatio > 0.95 {
 		return asset.TileSand
 	}
-	// 中央山脈 (精確縮減寬度，呈現脊樑感)
-	if posRatio > 0.82 && posRatio < 0.94 {
+	// 中央山脈 (精確縮減寬度，呈現脊樑感，東移)
+	if posRatio > 0.60 && posRatio < 0.85 {
 		return asset.TileMountain
 	}
 
@@ -167,15 +158,17 @@ func isPenghu(gx, gy int) bool {
 	sx := float64(gx) / 5.0
 	sy := float64(gy) / 5.0
 
-	// 澎湖中心 (5, 50)，限定在 X:12 之前，確保與本島 X:15 有深水區
-	if sx < 1 || sx > 12 || sy < 43 || sy > 57 {
+	// 澎湖區域判定，更貼近真實澎湖群島位置與散佈
+	if sx < 5 || sx > 25 || sy < 40 || sy > 65 {
 		return false
 	}
 
 	centers := []struct{ x, y, r float64 }{
-		{4, 50, 3.2},
-		{9, 52, 1.8},
-		{6, 46, 1.2},
+		{15, 53, 2.0}, // 馬公/湖西
+		{14, 50, 1.2}, // 白沙
+		{11, 48, 0.8}, // 吉貝
+		{12, 55, 1.0}, // 望安
+		{10, 57, 0.6}, // 七美
 	}
 	for _, c := range centers {
 		dx := sx - c.x
@@ -187,9 +180,27 @@ func isPenghu(gx, gy int) bool {
 	return false
 }
 
+type GlobalDisasterState struct {
+	Active           bool
+	Type             pb.DisasterType
+	EpicenterTileID  int64
+	EpicenterName    string
+	PathTiles        []int64
+	AffectedVillages map[int64]bool
+	Intensity        float32
+	Magnitude        float32
+	AnimTimer        float64
+}
+
+var CurrentDisaster = &GlobalDisasterState{AffectedVillages: make(map[int64]bool)}
+
 func (s *MapScene) Update() error {
 	s.camera.Update()
 	
+	if CurrentDisaster.Active {
+		CurrentDisaster.AnimTimer += 1.0 / 60.0
+	}
+
 	// Phase 3 Visual Effects Update
 	ui.GlobalScreenShake.Update()
 	ui.GlobalExplosion.Update()
@@ -198,11 +209,28 @@ func (s *MapScene) Update() error {
 	// Update Relief Panel if active
 	if ui.GlobalReliefPanel.Active {
 		ui.GlobalReliefPanel.Update()
+		return nil // Block other clicks if panel is active
 	}
 
-	// Handle Debug Buttons
+	// Handle Map Village Clicks for Relief
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		mx, my := ebiten.CursorPosition()
+		worldX, worldY := s.camera.ScreenToWorld(float64(mx), float64(my))
+		
+		// Check Village clicks
+		for _, v := range s.villages {
+			vx := float64(v.X) * 5.0 * TileSize
+			vy := float64(v.Y) * 5.0 * TileSize
+			if math.Abs(worldX-vx) < 30 && math.Abs(worldY-vy) < 30 {
+				if CurrentDisaster.Active && CurrentDisaster.AffectedVillages[v.VillageId] {
+					// Open Relief Panel for this village
+					ui.GlobalReliefPanel.Show(CurrentDisaster.EpicenterTileID, v.VillageId, v.Name, v.Population)
+					return nil
+				}
+			}
+		}
+
+		// Handle Debug Buttons
 		if my >= 40 && my <= 70 {
 			disasterType := -1
 			if mx >= 10 && mx <= 110 {
@@ -275,13 +303,47 @@ func (s *MapScene) Draw(screen *ebiten.Image) {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Scale(s.camera.Zoom, s.camera.Zoom)
 			op.GeoM.Translate(sx, sy)
+			
+			// Highlight affected villages
+			if CurrentDisaster.Active && CurrentDisaster.AffectedVillages[v.VillageId] {
+				// Blink red tint
+				if int(CurrentDisaster.AnimTimer*2)%2 == 0 {
+					op.ColorScale.ScaleWithColor(color.RGBA{255, 100, 100, 255})
+				}
+				ui.DrawText(shakeScreen, "⚠️ "+v.Name, int(sx)-10, int(sy)-15, color.RGBA{255, 50, 50, 255})
+			} else {
+				ui.DrawText(shakeScreen, v.Name, int(sx), int(sy)-5, color.White)
+			}
 			shakeScreen.DrawImage(img, op)
-			ui.DrawText(shakeScreen, v.Name, int(sx), int(sy)-5, color.White)
 		}
 	}
 
 	// 3. 外交關係線
 	s.drawDiplomacyLines(shakeScreen)
+
+	// Draw Epicenter or Typhoon Path
+	if CurrentDisaster.Active {
+		if CurrentDisaster.Type == pb.DisasterType_DISASTER_EARTHQUAKE {
+			// Epicenter rings
+			ex := float64(CurrentDisaster.EpicenterTileID / 1000) * 5.0 * TileSize
+			ey := float64(CurrentDisaster.EpicenterTileID % 1000) * 5.0 * TileSize
+			sx, sy := s.camera.WorldToScreen(ex, ey)
+			radius := float32(math.Mod(CurrentDisaster.AnimTimer*50, 150))
+			vector.StrokeCircle(shakeScreen, float32(sx), float32(sy), radius, 2, color.RGBA{255, 50, 50, 150}, true)
+			vector.StrokeCircle(shakeScreen, float32(sx), float32(sy), radius+20, 2, color.RGBA{255, 100, 100, 100}, true)
+		} else if CurrentDisaster.Type == pb.DisasterType_DISASTER_TYPHOON {
+			// Draw Typhoon path as a swirling vortex moving along the path
+			if len(CurrentDisaster.PathTiles) > 0 {
+				pathIdx := int(CurrentDisaster.AnimTimer) % len(CurrentDisaster.PathTiles)
+				ex := float64(CurrentDisaster.PathTiles[pathIdx] / 1000) * 5.0 * TileSize
+				ey := float64(CurrentDisaster.PathTiles[pathIdx] % 1000) * 5.0 * TileSize
+				sx, sy := s.camera.WorldToScreen(ex, ey)
+				radius := float32(100.0 + math.Sin(CurrentDisaster.AnimTimer*5)*20.0)
+				vector.DrawFilledCircle(shakeScreen, float32(sx), float32(sy), radius, color.RGBA{100, 150, 255, 50}, true)
+				vector.StrokeCircle(shakeScreen, float32(sx), float32(sy), radius*0.5, 5, color.RGBA{200, 220, 255, 100}, true)
+			}
+		}
+	}
 
 	// 4. Phase 3 粒子特效
 	ui.GlobalExplosion.Draw(shakeScreen)

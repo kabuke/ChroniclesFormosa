@@ -26,11 +26,13 @@ var GlobalExplosion = &ExplosionSystem{}
 func (e *ExplosionSystem) Trigger(x, y float64, count int) {
 	for i := 0; i < count; i++ {
 		angle := rand.Float64() * 2 * 3.14159
-		speed := rand.Float64()*3 + 1
-		life := rand.Float64()*30 + 30
+		speed := rand.Float64()*8 + 2 // Faster spread
+		life := rand.Float64()*60 + 60 // Longer life
 		c := color.RGBA{100, 100, 100, 255} // Default rock color
 		if rand.Float32() < 0.3 {
 			c = color.RGBA{150, 150, 150, 255} // Lighter rock
+		} else if rand.Float32() < 0.2 {
+			c = color.RGBA{200, 100, 50, 255} // Dust/fire
 		}
 		
 		e.particles = append(e.particles, Particle{
@@ -39,7 +41,7 @@ func (e *ExplosionSystem) Trigger(x, y float64, count int) {
 			vy: math.Sin(angle) * speed,
 			life: life, maxLife: life,
 			color: c,
-			size: rand.Float32()*3 + 1,
+			size: rand.Float32()*5 + 2, // Larger particles
 		})
 	}
 }

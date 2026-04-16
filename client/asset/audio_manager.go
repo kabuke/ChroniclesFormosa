@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/audio/vorbis"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 )
 
 const (
@@ -80,6 +81,8 @@ func PlaySFX(name string) {
 	var s io.ReadSeeker
 	if filepath.Ext(name) == ".mp3" {
 		s, _ = mp3.DecodeWithSampleRate(sampleRate, bytes.NewReader(data))
+	} else if filepath.Ext(name) == ".wav" {
+		s, _ = wav.DecodeWithSampleRate(sampleRate, bytes.NewReader(data))
 	} else {
 		s, _ = vorbis.DecodeWithSampleRate(sampleRate, bytes.NewReader(data))
 	}

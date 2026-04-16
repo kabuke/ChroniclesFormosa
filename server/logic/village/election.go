@@ -73,5 +73,13 @@ func ImpeachHeadman(username string, villageID int64) (string, error) {
 	v.DeputyHeadman = ""
 	_ = vRepo.Update(v)
 
+	// 把舊庄長貶為平民
+	pRepo := repo.NewPlayerRepo()
+	oldPlayer, err := pRepo.FindByUsername(oldHeadman)
+	if err == nil {
+		oldPlayer.VillageRole = 0
+		_ = pRepo.Update(oldPlayer)
+	}
+
 	return fmt.Sprintf("%s 的庄長 %s 因失去民心，已被族人罷免！", v.Name, oldHeadman), nil
 }
