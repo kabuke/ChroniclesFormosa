@@ -36,3 +36,6 @@ client_bin
 server_bin
 srv.log
 main
+test_client_bin
+.graphify_cached.json
+.graphify_uncached.txt
